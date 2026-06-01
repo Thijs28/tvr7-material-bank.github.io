@@ -343,7 +343,7 @@
         
         // Setup Camera & Renderer
         const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 1000);
-        camera.position.set(25, 35, 45);
+        camera.position.set(35, 45, 60);
         camera.lookAt(0, 0, 0);
         
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -401,7 +401,7 @@
 
         // --- Calculate STATE 1: Exploded (Random sphere) ---
         for (let i = 0; i < totalCubes; i++) {
-            const r = 35 * Math.cbrt(Math.random()); // spherical distribution
+            const r = 20 * Math.cbrt(Math.random()); // spherical distribution
             const theta = Math.random() * 2 * Math.PI;
             const phi = Math.acos(2 * Math.random() - 1);
             const x = r * Math.sin(phi) * Math.cos(theta);
@@ -427,7 +427,7 @@
         // 2. Waste (Scattered ring on floor)
         for(let i=0; i<countWaste; i++) {
             const angle = Math.random() * Math.PI * 2;
-            const radius = 15 + Math.random() * 35; // Ring between 15 and 50
+            const radius = 12 + Math.random() * 20; // Ring between 12 and 32
             const x = Math.cos(angle) * radius;
             const z = Math.sin(angle) * radius;
             const y = Math.random() * 2; // Flat on ground
