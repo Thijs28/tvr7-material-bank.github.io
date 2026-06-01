@@ -25,7 +25,7 @@
             color: var(--text-main); 
         }
         
-        /* 1. SCROLLYTELLING SECTION (Background: #f4f4f4) */
+        /* 1. SCROLLYTELLING SECTION */
         .scrolly-container { display: flex; align-items: flex-start; background-color: var(--bg-animation); }
         .text-overlay { width: 40%; padding: 0 5%; position: relative; z-index: 10; background-color: var(--bg-animation); }
         .graphic-container { 
@@ -47,18 +47,18 @@
         #svg-wrapper[data-current-state="step-2"] svg.blueprint g[id^="state_2"] { opacity: 1; }
         #svg-wrapper[data-current-state="step-3"] svg.blueprint g[id^="state_3"] { opacity: 1; }
 
-        /* 2. DATA SECTION (Background: #ffffff) */
+        /* 2. DATA SECTION */
         .data-section { padding: 80px 5vw; background-color: var(--bg-data); border-top: 1px solid var(--border); }
         .data-section h2 { font-size: 2rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px; }
-        .data-section p.subtitle { color: var(--text-muted); margin-bottom: 40px; font-size: 1.1rem; }
+        .data-section p.subtitle { color: var(--text-muted); margin-bottom: 60px; font-size: 1.1rem; max-width: 800px;}
 
         /* Sankey Diagram Styling */
-        #sankey-diagram { width: 100%; height: 600px; margin-bottom: 60px; overflow: visible; }
+        #sankey-diagram { width: 100%; height: 900px; margin-bottom: 80px; overflow: visible; }
         .node rect { cursor: pointer; transition: opacity 0.2s; }
         .node rect:hover { opacity: 0.8; }
-        .node text { font-family: sans-serif; font-size: 12px; pointer-events: none; font-weight: 500; }
-        .link { fill: none; stroke-opacity: 0.25; transition: stroke-opacity 0.2s; }
-        .link:hover { stroke-opacity: 0.6; }
+        .node text { font-family: sans-serif; font-size: 11px; pointer-events: none; font-weight: 500; }
+        .link { fill: none; stroke-opacity: 0.2; transition: stroke-opacity 0.2s; }
+        .link:hover { stroke-opacity: 0.7; }
 
         /* Custom Tooltip */
         .d3-tooltip {
@@ -69,14 +69,14 @@
         .d3-tooltip span { color: var(--accent); font-weight: bold; font-family: monospace; font-size: 14px;}
 
         /* Table Styling */
-        table { width: 100%; border-collapse: collapse; font-size: 1.1rem; }
-        th, td { padding: 15px 20px; text-align: left; border-bottom: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; font-size: 1.05rem; }
+        th, td { padding: 12px 20px; text-align: left; border-bottom: 1px solid var(--border); }
         th { background-color: #f9f9f9; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
         tr:hover td { background-color: #fafafa; }
         .category-header { background-color: #111111; color: #ffffff; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
-        .category-header td { padding: 20px; }
-        .highlight-val { font-weight: bold; font-family: monospace; font-size: 1.2rem; color: var(--accent); }
-        i { color: #888; font-size: 0.9em; } /* Dutch translations muted */
+        .category-header td { padding: 18px 20px; }
+        .highlight-val { font-weight: bold; font-family: monospace; font-size: 1.1rem; color: var(--accent); }
+        i { color: #888; font-size: 0.9em; font-weight: normal; }
     </style>
 </head>
 <body>
@@ -111,7 +111,7 @@
 
 <section class="data-section">
     <h2>Material Flow Analysis <i>(Materiaalstroomanalyse)</i></h2>
-    <p class="subtitle">Interactive Sankey diagram visualizing the dispersion of architectural mass from the original site to final economic and ecological destinations. Hover over flows for exact quantities.</p>
+    <p class="subtitle">An exhaustive mapping of all extracted materials from the TVR7 site to their final economic or ecological destinations. Due to conflicting volume metrics (m³, m², m, st), visual line width represents abstract mass proportion. Hover over any individual flow to view the exact verified measurement.</p>
     
     <div id="sankey-diagram"></div>
 
@@ -121,78 +121,47 @@
             <tr>
                 <th>Code</th>
                 <th>Material <i>(Materiaal)</i></th>
-                <th>Location <i>(Locatie)</i></th>
+                <th>Element & Location <i>(Locatie)</i></th>
                 <th>Quantity <i>(Hoeveelheid)</i></th>
             </tr>
         </thead>
         <tbody>
-            <tr class="category-header">
-                <td colspan="4">Art. 07.00 — Dismantling & Recovery <i>(Demontage & Recup)</i></td>
-            </tr>
-            <tr>
-                <td>07.11.11</td>
-                <td>Brickwork <i>(Baksteen)</i></td>
-                <td>Facades <i>(Gevels)</i></td>
-                <td class="highlight-val">20.94 m³</td>
-            </tr>
-            <tr>
-                <td>07.11.12</td>
-                <td>Brickwork <i>(Baksteen)</i></td>
-                <td>Interior Shaft <i>(Liftschacht)</i></td>
-                <td class="highlight-val">11.27 m³</td>
-            </tr>
-            <tr>
-                <td>07.53.10</td>
-                <td>Blue Stone <i>(Blauwe steen)</i></td>
-                <td>Interior Floors <i>(Vloerbekledingen)</i></td>
-                <td class="highlight-val">97.17 m²</td>
-            </tr>
-            <tr>
-                <td>07.71.40</td>
-                <td>Blue Stone <i>(Blauwe steen)</i></td>
-                <td>Exterior Paving <i>(Verhardingen)</i></td>
-                <td class="highlight-val">48.79 m²</td>
-            </tr>
-            <tr>
-                <td>07.52.10</td>
-                <td>Wood <i>(Hout)</i></td>
-                <td>Wainscoting <i>(Lambriseringen)</i></td>
-                <td class="highlight-val">54.40 m²</td>
-            </tr>
+            <tr class="category-header"><td colspan="4">Art. 07.00 — Dismantling & Recovery <i>(Demontage & Recup)</i></td></tr>
+            <tr><td>07.11.11</td><td>Brickwork <i>(Baksteen)</i></td><td>Facades <i>(Gevels)</i></td><td class="highlight-val">20.94 m³</td></tr>
+            <tr><td>07.11.12</td><td>Brickwork <i>(Baksteen)</i></td><td>Interior Walls <i>(Binnenmuren)</i></td><td class="highlight-val">11.27 m³</td></tr>
+            <tr><td>07.52.10</td><td>Wood <i>(Hout)</i></td><td>Wainscoting <i>(Lambriseringen)</i></td><td class="highlight-val">54.40 m²</td></tr>
+            <tr><td>07.53.10</td><td>Blue Stone <i>(Blauwe steen)</i></td><td>Interior Floors <i>(Vloerbekledingen)</i></td><td class="highlight-val">97.17 m²</td></tr>
+            <tr><td>07.71.40</td><td>Blue Stone <i>(Blauwe steen)</i></td><td>Exterior Paving <i>(Verhardingen)</i></td><td class="highlight-val">48.79 m²</td></tr>
+            <tr><td>07.64</td><td>Stone/Wood <i>(Natuursteen/Hout)</i></td><td>Sills <i>(Tabletten)</i></td><td class="highlight-val">61.84 m</td></tr>
+            <tr><td>07.65</td><td>Wood <i>(Hout)</i></td><td>Handrails <i>(Houten handgrepen)</i></td><td class="highlight-val">11.00 st</td></tr>
+            <tr><td>07.67</td><td>Signage <i>(Signalisatie)</i></td><td>Original Interior <i>(Origineel interieur)</i></td><td class="highlight-val">6.00 st</td></tr>
+            <tr><td>07.68</td><td>Artwork <i>(Kunstwerk)</i></td><td>'Vrouw van Lot'</td><td class="highlight-val">1.00 st</td></tr>
 
-            <tr class="category-header">
-                <td colspan="4">Art. 03.00 & 10.00 — Bulk Demolition <i>(Afbraak & Grondverzet)</i></td>
-            </tr>
-            <tr>
-                <td>10.21.00</td>
-                <td>Excavated Soil <i>(Uitgraving bodem)</i></td>
-                <td>Foundation Pit <i>(Bouwputten)</i></td>
-                <td>1,098.01 m³</td>
-            </tr>
-            <tr>
-                <td>03.22.21</td>
-                <td>Concrete <i>(Beton)</i></td>
-                <td>Floor Slabs <i>(Verdiepingsvloer)</i></td>
-                <td>1,320.89 m²</td>
-            </tr>
-            <tr>
-                <td>03.21.10</td>
-                <td>Masonry <i>(Metselwerk)</i></td>
-                <td>Standard Walls <i>(Muren)</i></td>
-                <td>235.31 m³</td>
-            </tr>
-            <tr>
-                <td>03.44.20</td>
-                <td>Joinery <i>(Buitenschrijnwerk)</i></td>
-                <td>Windows/Doors <i>(Ramen/Deuren)</i></td>
-                <td>899.33 m²</td>
-            </tr>
-            <tr>
-                <td>03.42.10</td>
-                <td>Asbestos <i>(Asbest)</i></td>
-                <td>Hazardous Roof <i>(Asbesthoudend)</i></td>
-                <td>67.51 m²</td>
-            </tr>
+            <tr class="category-header"><td colspan="4">Art. 10.00 — Earthworks & Excavation <i>(Grondwerken & Grondverzet)</i></td></tr>
+            <tr><td>10.21</td><td>Excavated Soil <i>(Uitgraving bodem)</i></td><td>Foundation Pit <i>(Gewone bouwputten)</i></td><td>1,098.01 m³</td></tr>
+            <tr><td>10.43.11</td><td>Soil Removal <i>(Grondverzet)</i></td><td>Clean Soil Code 211 <i>(Kwaliteit vrij gebruik)</i></td><td>1,098.01 m³</td></tr>
+
+            <tr class="category-header"><td colspan="4">Art. 03.20 — Structural Demolition <i>(Afbraak Ruwbouwelementen)</i></td></tr>
+            <tr><td>03.21.10</td><td>Masonry <i>(Metselwerk)</i></td><td>Standard Walls <i>(Muren)</i></td><td>235.31 m³</td></tr>
+            <tr><td>03.21.20</td><td>Concrete <i>(Beton)</i></td><td>Structural Walls <i>(Muren)</i></td><td>82.47 m³</td></tr>
+            <tr><td>03.22.21</td><td>Concrete <i>(Beton)</i></td><td>Floor Slabs <i>(Verdiepingsvloer)</i></td><td>865.75 m²</td></tr>
+            <tr><td>03.22.22</td><td>Concrete <i>(Beton)</i></td><td>Ground Slabs <i>(Op volle grond)</i></td><td>126.87 m²</td></tr>
+            <tr><td>03.22.23</td><td>Concrete <i>(Beton)</i></td><td>Ramp Slabs <i>(Helling inrit)</i></td><td>171.95 m²</td></tr>
+            <tr><td>03.22.24</td><td>Concrete <i>(Beton)</i></td><td>Roof Slabs <i>((Hellend) dak)</i></td><td>156.32 m²</td></tr>
+            <tr><td>03.26.10</td><td>Concrete <i>(Beton)</i></td><td>Stairs <i>(Trappen)</i></td><td>21.00 st</td></tr>
+            <tr><td>03.26.20</td><td>Concrete <i>(Beton)</i></td><td>Columns <i>(Kolommen)</i></td><td>11.92 m³</td></tr>
+            <tr><td>03.26.30</td><td>Concrete <i>(Beton)</i></td><td>Beams <i>(Balken)</i></td><td>51.21 m³</td></tr>
+            <tr><td>03.26.40</td><td>Concrete <i>(Beton)</i></td><td>Facade Elements <i>(Gevelelementen)</i></td><td>9.33 m³</td></tr>
+
+            <tr class="category-header"><td colspan="4">Art. 03.30 to 03.80 — Envelope & Finishes Demolition <i>(Afbraak Afwerking & Omgeving)</i></td></tr>
+            <tr><td>03.31.20</td><td>Roofing <i>(Dakopbouw)</i></td><td>Pitched Roof <i>(Hellend dak)</i></td><td>144.88 m²</td></tr>
+            <tr><td>03.32.20</td><td>Roofing <i>(Dakopbouw)</i></td><td>Flat Roof <i>(Plat dak)</i></td><td>450.34 m²</td></tr>
+            <tr><td>03.42.10</td><td>Asbestos Slates <i>(Leien)</i></td><td>Hazardous <i>(Asbesthoudend)</i></td><td>67.51 m²</td></tr>
+            <tr><td>03.44.20</td><td>Joinery <i>(Buitenschrijnwerk)</i></td><td>Windows/Doors <i>(Ramen/Deuren)</i></td><td>899.33 m²</td></tr>
+            <tr><td>03.44.30</td><td>Sun Screens <i>(Screens)</i></td><td>Exterior <i>(Buiten)</i></td><td>247.33 m²</td></tr>
+            <tr><td>03.52</td><td>Plaster <i>(Pleisterwerk)</i></td><td>Interior Removal <i>(Afkappen)</i></td><td>257.16 m²</td></tr>
+            <tr><td>03.54.20</td><td>Floor Screed <i>(Dekvloer)</i></td><td>To Structure <i>(Tot op draagstructuur)</i></td><td>193.74 m²</td></tr>
+            <tr><td>03.84.10</td><td>Pavement <i>(Verhardingen)</i></td><td>Exterior Removal <i>(Verwijderen)</i></td><td>27.61 m²</td></tr>
         </tbody>
     </table>
 </section>
@@ -208,7 +177,7 @@
             const wrapper = document.getElementById('svg-wrapper');
             wrapper.innerHTML = svgCode;
             const svgEl = wrapper.querySelector('svg');
-            if(svgEl) svgEl.classList.add('blueprint'); // Assign class to target CSS
+            if(svgEl) svgEl.classList.add('blueprint');
             initScroll();
         })
         .catch(error => console.error("Fetch error:", error));
@@ -232,40 +201,102 @@
     const sankeyData = {
         nodes: [
             { name: "TVR7 Pre-Demolition (TVR7 Site)", category: "source" },       // 0
-            { name: "Earthworks (Grondwerken)", category: "waste" },               // 1
-            { name: "Concrete Slabs (Betonvloeren)", category: "recycle" },        // 2
-            { name: "Mixed Masonry (Gemengd Metselwerk)", category: "recycle" },   // 3
-            { name: "Salvaged Brick (Recup Baksteen)", category: "salvage" },      // 4
-            { name: "Blue Stone (Blauwe Steen)", category: "salvage" },            // 5
-            { name: "Preserved Wood (Behouden Hout)", category: "salvage" },       // 6
-            { name: "Exterior Joinery (Buitenschrijnwerk)", category: "waste" },   // 7
-            { name: "Roofing (Dakopbouw)", category: "waste" },                    // 8
-            { name: "Asbestos (Asbest)", category: "hazard" },                     // 9
-            { name: "Secondary Market (Tweedehandsmarkt)", category: "salvage" },  // 10
-            { name: "Bulk Recycling (Puinrecyclage)", category: "recycle" },       // 11
-            { name: "Standard Landfill (Stortplaats)", category: "waste" },        // 12
-            { name: "Hazardous Disposal (Gevaarlijk Afval)", category: "hazard" }  // 13
+            
+            // Final Destinations
+            { name: "Bulk Recycling (Puinrecyclage)", category: "recycle" },       // 1
+            { name: "Standard Landfill (Stortplaats)", category: "waste" },        // 2
+            { name: "Hazardous Disposal (Gevaarlijk Afval)", category: "hazard" }, // 3
+            { name: "Secondary Market (Tweedehandsmarkt)", category: "salvage" },  // 4
+            { name: "Artwork Relocation (Kunstbehoud)", category: "salvage" },     // 5
+            { name: "Soil Reuse (Grondhergebruik)", category: "recycle" },         // 6
+
+            // Demolition Materials (Middle Nodes)
+            { name: "Masonry Walls (Metselwerk Muren)", category: "recycle" },     // 7
+            { name: "Concrete Walls (Beton Muren)", category: "recycle" },         // 8
+            { name: "Concrete Floors (Betonvloeren)", category: "recycle" },       // 9
+            { name: "Concrete Roof (Betondak)", category: "recycle" },             // 10
+            { name: "Concrete Structure (Structuurelementen)", category: "recycle"},// 11
+            { name: "Floor Screed (Dekvloer)", category: "recycle" },              // 12
+            { name: "Ext. Pavement (Verhardingen)", category: "recycle" },         // 13
+            { name: "Pitched Roof (Hellend Dak)", category: "waste" },             // 14
+            { name: "Flat Roof (Plat Dak)", category: "waste" },                   // 15
+            { name: "Exterior Joinery (Buitenschrijnwerk)", category: "waste" },   // 16
+            { name: "Sun Screens (Screens)", category: "waste" },                  // 17
+            { name: "Plasterwork (Pleisterwerk)", category: "waste" },             // 18
+            { name: "Asbestos Slates (Asbest Leien)", category: "hazard" },        // 19
+
+            // Salvage Materials (Middle Nodes)
+            { name: "Facade Bricks (Gevelsteen)", category: "salvage" },           // 20
+            { name: "Interior Bricks (Binnenmuursteen)", category: "salvage" },    // 21
+            { name: "Blue Stone Floors (Blauwe Steen Vloer)", category: "salvage" },// 22
+            { name: "Blue Stone Paving (Blauwe Steen Buiten)", category: "salvage" },// 23
+            { name: "Wood Wainscoting (Lambrisering)", category: "salvage" },      // 24
+            { name: "Sills (Tabletten)", category: "salvage" },                    // 25
+            { name: "Wooden Handrails (Handgrepen)", category: "salvage" },        // 26
+            { name: "Original Signage (Signalisatie)", category: "salvage" },      // 27
+            { name: "Statue 'Vrouw van Lot' (Kunstwerk)", category: "salvage" },   // 28
+
+            // Earthworks
+            { name: "Excavated Soil (Uitgegraven Bodem)", category: "recycle" }    // 29
         ],
         links: [
-            { source: 0, target: 1, value: 1098 },
-            { source: 0, target: 2, value: 1320 },
-            { source: 0, target: 3, value: 235 },
-            { source: 0, target: 4, value: 32 },
-            { source: 0, target: 5, value: 146 },
-            { source: 0, target: 6, value: 54 },
-            { source: 0, target: 7, value: 899 },
-            { source: 0, target: 8, value: 595 },
-            { source: 0, target: 9, value: 68 },
+            // TVR7 -> Demolition Materials
+            { source: 0, target: 7, value: 235.31, unit: "m³" },
+            { source: 0, target: 8, value: 82.47, unit: "m³" },
+            { source: 0, target: 9, value: 1164.57, unit: "m²" },
+            { source: 0, target: 10, value: 156.32, unit: "m²" },
+            { source: 0, target: 11, value: 93.46, unit: "m³ & st (Combined)" }, 
+            { source: 0, target: 12, value: 193.74, unit: "m²" },
+            { source: 0, target: 13, value: 27.61, unit: "m²" },
+            { source: 0, target: 14, value: 144.88, unit: "m²" },
+            { source: 0, target: 15, value: 450.34, unit: "m²" },
+            { source: 0, target: 16, value: 899.33, unit: "m²" },
+            { source: 0, target: 17, value: 247.33, unit: "m²" },
+            { source: 0, target: 18, value: 257.16, unit: "m²" },
+            { source: 0, target: 19, value: 67.51, unit: "m²" },
+
+            // TVR7 -> Salvage Materials
+            { source: 0, target: 20, value: 20.94, unit: "m³" },
+            { source: 0, target: 21, value: 11.27, unit: "m³" },
+            { source: 0, target: 22, value: 97.17, unit: "m²" },
+            { source: 0, target: 23, value: 48.79, unit: "m²" },
+            { source: 0, target: 24, value: 54.40, unit: "m²" },
+            { source: 0, target: 25, value: 61.84, unit: "m" },
+            { source: 0, target: 26, value: 11.00, unit: "st" },
+            { source: 0, target: 27, value: 6.00, unit: "st" },
+            { source: 0, target: 28, value: 1.00, unit: "Unit (Statue)" },
+
+            // TVR7 -> Earthworks
+            { source: 0, target: 29, value: 1098.01, unit: "m³" },
+
+            // Demolition Materials -> Destinations
+            { source: 7, target: 1, value: 235.31, unit: "m³" },
+            { source: 8, target: 1, value: 82.47, unit: "m³" },
+            { source: 9, target: 1, value: 1164.57, unit: "m²" },
+            { source: 10, target: 1, value: 156.32, unit: "m²" },
+            { source: 11, target: 1, value: 93.46, unit: "m³ & st" },
+            { source: 12, target: 1, value: 193.74, unit: "m²" },
+            { source: 13, target: 1, value: 27.61, unit: "m²" },
+            { source: 14, target: 2, value: 144.88, unit: "m²" },
+            { source: 15, target: 2, value: 450.34, unit: "m²" },
+            { source: 16, target: 2, value: 899.33, unit: "m²" },
+            { source: 17, target: 2, value: 247.33, unit: "m²" },
+            { source: 18, target: 2, value: 257.16, unit: "m²" },
+            { source: 19, target: 3, value: 67.51, unit: "m²" },
+
+            // Salvage Materials -> Destinations
+            { source: 20, target: 4, value: 20.94, unit: "m³" },
+            { source: 21, target: 4, value: 11.27, unit: "m³" },
+            { source: 22, target: 4, value: 97.17, unit: "m²" },
+            { source: 23, target: 4, value: 48.79, unit: "m²" },
+            { source: 24, target: 4, value: 54.40, unit: "m²" },
+            { source: 25, target: 4, value: 61.84, unit: "m" },
+            { source: 26, target: 4, value: 11.00, unit: "st" },
+            { source: 27, target: 4, value: 6.00, unit: "st" },
+            { source: 28, target: 5, value: 1.00, unit: "Unit (Statue)" },
             
-            { source: 1, target: 12, value: 1098 },
-            { source: 2, target: 11, value: 1320 },
-            { source: 3, target: 11, value: 235 },
-            { source: 4, target: 10, value: 32 },
-            { source: 5, target: 10, value: 146 },
-            { source: 6, target: 10, value: 54 },
-            { source: 7, target: 12, value: 899 },
-            { source: 8, target: 12, value: 595 },
-            { source: 9, target: 13, value: 68 }
+            // Earthworks -> Destinations
+            { source: 29, target: 6, value: 1098.01, unit: "m³" }
         ]
     };
 
@@ -287,13 +318,13 @@
             .attr("width", width).attr("height", height);
 
         const sankey = d3.sankey()
-            .nodeWidth(24)
-            .nodePadding(25)
+            .nodeWidth(20)
+            .nodePadding(12) // Adjusted to fit 29 nodes
             .extent([[10, 10], [width - 10, height - 10]]);
 
         const {nodes, links} = sankey(sankeyData);
 
-        // Draw Links
+        // Draw Links with Math.max to guarantee 1.5px minimum visibility for the 1 Unit statue
         const link = svg.append("g")
             .selectAll("path")
             .data(links)
@@ -301,7 +332,7 @@
             .attr("class", "link")
             .attr("d", d3.sankeyLinkHorizontal())
             .attr("stroke", d => colorMap[d.source.category])
-            .attr("stroke-width", d => Math.max(1, d.width));
+            .attr("stroke-width", d => Math.max(1.5, d.width));
 
         // Draw Nodes
         const node = svg.append("g")
@@ -313,7 +344,7 @@
         node.append("rect")
             .attr("x", d => d.x0)
             .attr("y", d => d.y0)
-            .attr("height", d => d.y1 - d.y0)
+            .attr("height", d => Math.max(2, d.y1 - d.y0)) // Ensure tiny nodes render
             .attr("width", d => d.x1 - d.x0)
             .attr("fill", d => colorMap[d.category]);
 
@@ -333,18 +364,18 @@
 
         link.on("mousemove", function(event, d) {
             tooltip.style("opacity", 1)
-                   .html(`${d.source.name.split(" (")[0]} → ${d.target.name.split(" (")[0]}<br><span>${d.value} Units</span>`)
+                   .html(`${d.source.name.split(" (")[0]} → ${d.target.name.split(" (")[0]}<br><span>${d.value} ${d.unit}</span>`)
                    .style("left", (event.pageX + 15) + "px")
                    .style("top", (event.pageY - 28) + "px");
-            d3.select(this).style("stroke-opacity", 0.7);
+            d3.select(this).style("stroke-opacity", 0.8);
         }).on("mouseleave", function() {
             tooltip.style("opacity", 0);
-            d3.select(this).style("stroke-opacity", 0.25);
+            d3.select(this).style("stroke-opacity", 0.2);
         });
 
         node.on("mousemove", function(event, d) {
             tooltip.style("opacity", 1)
-                   .html(`${d.name.split(" (")[0]}<br>Total flow: <span>${d.value} Units</span>`)
+                   .html(`<strong>${d.name.split(" (")[0]}</strong><br><span style="color:#aaa; font-size: 11px;">Hover over flowing lines for specific units & volumes</span>`)
                    .style("left", (event.pageX + 15) + "px")
                    .style("top", (event.pageY - 28) + "px");
         }).on("mouseleave", function() {
