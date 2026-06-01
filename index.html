@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TVR7 | Material Bank</title>
+    <style>
+        :root {
+            --bg: #111;
+            --text: #eee;
+            --accent1: #cc5500; /* Terracotta / Brick */
+            --accent2: #4A5D6B; /* Blue Stone */
+            --accent3: #C19A6B; /* Wood */
+        }
+        body, html {
+            margin: 0; padding: 0; 
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            scroll-behavior: smooth;
+        }
+        header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            border-bottom: 1px solid #333;
+        }
+        h1 { font-size: 5rem; margin: 0; letter-spacing: -2px; }
+        h2 { font-size: 1.5rem; font-weight: 300; color: #888; }
+        section {
+            padding: 100px 10vw;
+            border-bottom: 1px solid #333;
+        }
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 50px;
+        }
+        .card {
+            background: #1a1a1a;
+            padding: 2rem;
+            border-top: 4px solid #555;
+            transition: transform 0.3s;
+        }
+        .card:hover { transform: translateY(-10px); }
+        .card.brick { border-color: var(--accent1); }
+        .card.stone { border-color: var(--accent2); }
+        .card.wood { border-color: var(--accent3); }
+        .stat { font-size: 3rem; font-weight: bold; display: block; margin-bottom: 10px; }
+        .label { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px; color: #aaa; }
+        .demolition-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 40px;
+        }
+        .demolition-table th, .demolition-table td {
+            text-align: left; padding: 15px; border-bottom: 1px solid #333;
+        }
+        .demolition-table th { color: #888; font-weight: normal; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>TVR7</h1>
+    <h2>The Building as a Material Bank</h2>
+</header>
+
+<section>
+    <h2>Recovered Assets (Art. 07.00)</h2>
+    <div class="data-grid">
+        <div class="card brick">
+            <span class="stat">32.21 m³</span>
+            <span class="label">Salvaged Baksteen (Bricks)</span>
+            <p>Sourced from Noord facade and Liftschacht. Manually dismantled and mortar-cleaned.</p>
+        </div>
+        <div class="card stone">
+            <span class="stat">145.96 m²</span>
+            <span class="label">Blauwe Steen (Blue Stone)</span>
+            <p>Recovered floor tiles and exterior paving. Separated for direct reuse.</p>
+        </div>
+        <div class="card wood">
+            <span class="stat">54.40 m²</span>
+            <span class="label">Houten Lambriseringen</span>
+            <p>Preserved interior wood wainscoting extracted prior to structural demolition.</p>
+        </div>
+    </div>
+</section>
+
+<section>
+    <h2>Demolition Volumes (Art. 03.00 & 10.00)</h2>
+    <table class="demolition-table">
+        <tr><th>Material Stream</th><th>Volume / Area</th><th>Treatment</th></tr>
+        <tr><td>Excavated Soil (Grondverzet)</td><td>1098.01 m³</td><td>Removed</td></tr>
+        <tr><td>Concrete Floors (Betonvloer)</td><td>1160.89 m²</td><td>Demolished</td></tr>
+        <tr><td>Asbestos Roofing (Leien)</td><td>67.51 m²</td><td>Hazardous Removal</td></tr>
+        <tr><td>Exterior Joinery (Ramen/Deuren)</td><td>899.33 m²</td><td>Dismantled</td></tr>
+    </table>
+</section>
+
+</body>
+</html>
