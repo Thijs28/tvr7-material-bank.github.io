@@ -414,11 +414,13 @@
 
         // --- Calculate STATE 2: Segregated Destiny ---
         let c = 0;
+        const lift = 6; // Lifts the entire final state up into the center of the camera frame
+        
         // 1. Retained (Core, packed 14x14x14 grid)
         let dimR = 14;
         for(let i=0; i<countRetained; i++) {
             let x = (i % dimR) - dimR/2;
-            let y = Math.floor((i / dimR) % dimR);
+            let y = Math.floor((i / dimR) % dimR) + lift; // Applied lift
             let z = Math.floor(i / (dimR*dimR)) - dimR/2;
             states[2].pos.push(new THREE.Vector3(x, y, z));
             states[2].col.push(colBlack.clone());
@@ -430,7 +432,7 @@
             const radius = 12 + Math.random() * 20; // Ring between 12 and 32
             const x = Math.cos(angle) * radius;
             const z = Math.sin(angle) * radius;
-            const y = Math.random() * 2; // Flat on ground
+            const y = (Math.random() * 2) + lift; // Applied lift to the flat ground
             states[2].pos.push(new THREE.Vector3(x, y, z));
             states[2].col.push(colGrey.clone());
             c++;
@@ -438,7 +440,8 @@
         // 3. Salvage (Neat pallet in front)
         let dx=0, dy=0, dz=0;
         for(let i=0; i<countSalvage; i++) {
-            states[2].pos.push(new THREE.Vector3(dx - 2, dy, dz + 20)); // Front center
+            // Applied lift to the pallet
+            states[2].pos.push(new THREE.Vector3(dx - 2, dy + lift, dz + 20)); 
             states[2].col.push(colRed.clone());
             dx++;
             if(dx >= 5) { dx=0; dz++; }
