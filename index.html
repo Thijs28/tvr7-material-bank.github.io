@@ -13,61 +13,67 @@
         .graphic-container { width: 60%; height: 100vh; position: sticky; top: 0; display: flex; justify-content: center; align-items: center; }
         svg { width: 90%; height: auto; max-height: 90vh; }
         
-        #red_front, #red_back, #black_post { transition: opacity 1.2s ease; }
-        #red_front *, #red_back *, #black_post * { transition: stroke 1.2s ease; }
+        /* 1. Default state: Force all layers invisible */
+        /* [id^=""] selector matches IDs that START with the string, bypassing Illustrator's suffix errors */
+        svg g[id^="state_1"], 
+        svg g[id^="state_2"], 
+        svg g[id^="state_3"] { 
+            opacity: 0; 
+            transition: opacity 0.8s ease-in-out; 
+            transform: translateZ(0);
+        }
 
-        /* State 1: Complete drawing, all black */
-        .state-1 #red_front, .state-1 #black_post, .state-1 #red_back { opacity: 1; }
-        .state-1 #red_front *, .state-1 #red_back *, .state-1 #black_post * { stroke: #111 !important; }
-
-        /* State 2: Demolished in red, retained in grey */
-        .state-2 #red_front, .state-2 #black_post, .state-2 #red_back { opacity: 1; }
-        .state-2 #red_front *, .state-2 #red_back * { stroke: #ed1c24 !important; }
-        .state-2 #black_post * { stroke: #bbbbbb !important; }
-
-        /* State 3: Post-demolition, all black */
-        .state-3 #red_front, .state-3 #red_back { opacity: 0; }
-        .state-3 #black_post { opacity: 1; }
-        .state-3 #black_post * { stroke: #111 !important; }
+        /* 2. Active state: Show only the triggered layer */
+        #svg-wrapper[data-current-state="step-1"] svg g[id^="state_1"] { opacity: 1; }
+        #svg-wrapper[data-current-state="step-2"] svg g[id^="state_2"] { opacity: 1; }
+        #svg-wrapper[data-current-state="step-3"] svg g[id^="state_3"] { opacity: 1; }
     </style>
 </head>
 <body>
 
 <div class="scrolly-container">
     <div class="text-overlay">
-        <div class="step" data-state="state-1">
+        <div class="step" data-state="step-1">
             <div><h2>1. Pre-Demolition Mass</h2><p>Original volume. 1,098 m³ embedded earthworks.</p></div>
         </div>
-        <div class="step" data-state="state-2">
+        <div class="step" data-state="step-2">
             <div><h2>2. Demolition & Salvage</h2><p>32.21 m³ brickwork and 145.96 m² blue stone highlighted for extraction.</p></div>
         </div>
-        <div class="step" data-state="state-3">
+        <div class="step" data-state="step-3">
             <div><h2>3. Post-Demolition Framework</h2><p>Permanent skeleton. 899 m² joinery removed.</p></div>
         </div>
     </div>
-    <div class="graphic-container state-1" id="svg-wrapper"></div>
+    <div class="graphic-container" id="svg-wrapper" data-current-state="step-1"></div>
 </div>
 
 <script>
-    fetch('State1-3.txt')
-        .then(response => response.text())
+    fetch('state1-3.txt')
+        .then(response => {
+            if (!response.ok) throw new Error("File not found");
+            return response.text();
+        })
         .then(svgCode => {
             document.getElementById('svg-wrapper').innerHTML = svgCode;
             initScroll();
-        });
+        })
+        .catch(error => console.error("Fetch error:", error));
 
     function initScroll() {
         const steps = document.querySelectorAll('.step');
         const svgWrapper = document.getElementById('svg-wrapper');
+        
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     steps.forEach(s => s.classList.remove('is-active'));
                     entry.target.classList.add('is-active');
-                    svgWrapper.className = `graphic-container ${entry.target.getAttribute('data-state')}`;
+                    
+                    const state = entry.target.getAttribute('data-state');
+                    svgWrapper.setAttribute('data-current-state', state);
                 }
             });
-        }, { rootMargin: '-50% 0px -50% 0px' });
+        }, { threshold: 0.5 });
+
         steps.forEach(step => observer.observe(step));
     }
 </script>
