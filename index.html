@@ -28,10 +28,12 @@
         
         .scrolly-container { display: flex; align-items: flex-start; background-color: var(--bg-animation); }
         .text-overlay { width: 40%; padding: 0 5%; position: relative; z-index: 10; background-color: var(--bg-animation); }
+        
+        /* Removed overflow: hidden from here so SVG is not clipped */
         .graphic-container { 
             width: 60%; height: 100vh; position: sticky; top: 0; 
             display: flex; justify-content: center; align-items: center; 
-            background-color: var(--bg-animation); overflow: hidden;
+            background-color: var(--bg-animation); 
         }
         
         .step { height: 100vh; display: flex; flex-direction: column; justify-content: center; opacity: 0.25; transition: opacity 0.6s ease; }
@@ -82,7 +84,7 @@
         i { color: #888; font-size: 0.9em; font-weight: normal; }
 
         .three-section { border-top: 1px solid var(--border); }
-        #three-canvas-container { width: 100%; height: 100%; position: absolute; top: 0; left: 0; cursor: grab; }
+        #three-canvas-container { width: 100%; height: 100%; position: absolute; top: 0; left: 0; cursor: grab; overflow: hidden; }
         #three-canvas-container:active { cursor: grabbing; }
         .instruction-tag { position: absolute; bottom: 30px; right: 30px; background: rgba(0,0,0,0.7); color: white; padding: 8px 15px; border-radius: 20px; font-size: 0.85rem; pointer-events: none; opacity: 0.5; }
     </style>
@@ -195,7 +197,7 @@
         <div class="step three-step" data-three-state="2">
             <div>
                 <h2>3. Material Destiny</h2>
-                <p>The demolished volume is mathematically ordered into distinct destinations. The bulk waste and recycling (<b>3,721 m³</b>) stacks into a dense mass. Emerging in the foreground are exactly <b>40 m³</b> of high-value salvaged materials (Red), while the permanent core remains fixed in the center.<br><br><i>Click and drag to rotate the 3D model and explore the volumetric disparity.</i></p>
+                <p>The demolished volume is mathematically ordered by mass. The bulk waste (<b>3,721 m³</b>) stacks heavily to the left. The high-value salvaged materials (<b>40 m³</b>) stack to the right, scaling accurately against the permanent core in the center.<br><br><i>Click and drag to rotate the 3D model.</i></p>
             </div>
         </div>
     </div>
@@ -206,11 +208,13 @@
 </div>
 
 <script>
+    // Bulletproof SVG Fetch (Strips XML errors automatically)
     fetch('state1-3.txt')
         .then(response => { if (!response.ok) throw new Error(); return response.text(); })
         .then(svgCode => {
+            const cleanSvg = svgCode.replace(/<\?xml.*?\?>/g, '').replace(//g, '');
             const wrapper = document.getElementById('svg-wrapper');
-            wrapper.innerHTML = svgCode;
+            wrapper.innerHTML = cleanSvg;
             const svgEl = wrapper.querySelector('svg');
             if(svgEl) svgEl.classList.add('blueprint');
             initScroll();
@@ -298,13 +302,17 @@
             .on("mouseleave", () => tooltip.style("opacity", 0));
     }
 
+    // ---------------------------------------------------------
+    // REWRITTEN 3D GRID PACKING LOGIC
+    // ---------------------------------------------------------
     function initThreeJS() {
         const container = document.getElementById('three-canvas-container');
         const scene = new THREE.Scene();
         
         const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 1000);
-        camera.position.set(35, 45, 60);
-        camera.lookAt(0, 12, 0);
+        // Pulled camera further back to frame the wide Left-to-Right layout
+        camera.position.set(0, 45, 80);
+        camera.lookAt(0, 10, 0);
         
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(container.clientWidth, container.clientHeight);
@@ -355,16 +363,20 @@
         }
 
         for (let j = 0; j < totalCubes; j++) {
+            // STATE 0: Monolith
             states[0].pos.push(monolithPositions[j].clone());
             states[0].col.push(colNeutral.clone());
 
             if (j < countRetained) {
+                // RETAINED BLOCK (Stays fixed in center for States 1 & 2)
                 states[1].pos.push(monolithPositions[j].clone());
                 states[1].col.push(colBlack.clone());
-
                 states[2].pos.push(monolithPositions[j].clone());
                 states[2].col.push(colBlack.clone());
+                
             } else if (j < countRetained + countWaste) {
+                // DEMOLISHED WASTE
+                // State 1: Explodes upwards
                 const r = 20 * Math.cbrt(Math.random()) + 10;
                 const theta = Math.random() * 2 * Math.PI;
                 const phi = Math.acos(2 * Math.random() - 1);
@@ -375,13 +387,19 @@
                 ));
                 states[1].col.push(colNeutral.clone());
 
+                // State 2: Math fixed to properly stack the block on the LEFT (X = -19)
                 let wIndex = j - countRetained;
-                let wX = (wIndex % 15) - 20; 
-                let wY = Math.floor((wIndex / 15) % 17);
-                let wZ = Math.floor(wIndex / (15 * 17)) - 7.5;
+                let wDimX = 16, wDimZ = 16;
+                let wLayer = wDimX * wDimZ;
+                let wX = (wIndex % wDimX) - wDimX/2 - 19; 
+                let wZ = Math.floor((wIndex % wLayer) / wDimX) - wDimZ/2;
+                let wY = Math.floor(wIndex / wLayer);
                 states[2].pos.push(new THREE.Vector3(wX, wY, wZ));
                 states[2].col.push(colGrey.clone());
+                
             } else {
+                // SALVAGED MATERIAL
+                // State 1: Explodes upwards
                 const r = 20 * Math.cbrt(Math.random()) + 10;
                 const theta = Math.random() * 2 * Math.PI;
                 const phi = Math.acos(2 * Math.random() - 1);
@@ -392,10 +410,13 @@
                 ));
                 states[1].col.push(colNeutral.clone());
 
+                // State 2: Math fixed to properly stack the block on the RIGHT (X = +15)
                 let sIndex = j - (countRetained + countWaste);
-                let sX = (sIndex % 5) - 2.5;
-                let sY = Math.floor((sIndex / 5) % 2);
-                let sZ = Math.floor(sIndex / 10) + 15; 
+                let sDimX = 4, sDimZ = 5;
+                let sLayer = sDimX * sDimZ;
+                let sX = (sIndex % sDimX) - sDimX/2 + 15;
+                let sZ = Math.floor((sIndex % sLayer) / sDimX) - sDimZ/2;
+                let sY = Math.floor(sIndex / sLayer); 
                 states[2].pos.push(new THREE.Vector3(sX, sY, sZ));
                 states[2].col.push(colRed.clone());
             }
@@ -473,6 +494,7 @@
         });
     }
 
+    // Launch all scripts
     window.onload = () => {
         drawTreemap();
         drawSankey();
