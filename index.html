@@ -20,13 +20,12 @@
         }
         
         body, html { 
-    		margin: 0; padding: 0; 
-    		font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
-    		background: var(--bg-animation); 
-    		color: var(--text-main); 
-	}
+            margin: 0; padding: 0; 
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+            background: var(--bg-animation); 
+            color: var(--text-main); 
+        }
         
-        /* 1. SCROLLYTELLING SECTION (SVG) */
         .scrolly-container { display: flex; align-items: flex-start; background-color: var(--bg-animation); }
         .text-overlay { width: 40%; padding: 0 5%; position: relative; z-index: 10; background-color: var(--bg-animation); }
         .graphic-container { 
@@ -48,12 +47,10 @@
         #svg-wrapper[data-current-state="step-2"] svg.blueprint g[id^="state_2"] { opacity: 1; }
         #svg-wrapper[data-current-state="step-3"] svg.blueprint g[id^="state_3"] { opacity: 1; }
 
-        /* 2. DATA SECTION */
         .data-section { padding: 80px 5vw; background-color: var(--bg-data); border-top: 1px solid var(--border); }
         .data-section h2 { font-size: 2rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px; }
         .data-section p.subtitle { color: var(--text-muted); margin-bottom: 60px; font-size: 1.1rem; max-width: 800px;}
 
-        /* Treemap & Sankey Styling */
         #treemap-diagram { width: 100%; height: 500px; margin-bottom: 80px; position: relative; }
         .treemap-node { position: absolute; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: white; overflow: hidden; outline: 1px solid #fff; transition: background 0.3s; cursor: default; }
         .treemap-node:hover { filter: brightness(1.1); }
@@ -75,7 +72,6 @@
         }
         .d3-tooltip span { color: var(--accent); font-weight: bold; font-family: monospace; font-size: 14px;}
 
-        /* Table Styling */
         table { width: 100%; border-collapse: collapse; font-size: 1.05rem; }
         th, td { padding: 12px 20px; text-align: left; border-bottom: 1px solid var(--border); }
         th { background-color: #f9f9f9; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
@@ -85,33 +81,10 @@
         .highlight-val { font-weight: bold; font-family: monospace; font-size: 1.1rem; color: var(--accent); }
         i { color: #888; font-size: 0.9em; font-weight: normal; }
 
-        /* 3. 3D PARTICLE MONOLITH SECTION */
-        .three-section {
-            border-top: 1px solid var(--border);
-        }
-        #three-canvas-container {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            cursor: grab;
-        }
-        #three-canvas-container:active {
-            cursor: grabbing;
-        }
-        .instruction-tag {
-            position: absolute;
-            bottom: 30px;
-            right: 30px;
-            background: rgba(0,0,0,0.7);
-            color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            pointer-events: none;
-            opacity: 0.5;
-        }
+        .three-section { border-top: 1px solid var(--border); }
+        #three-canvas-container { width: 100%; height: 100%; position: absolute; top: 0; left: 0; cursor: grab; }
+        #three-canvas-container:active { cursor: grabbing; }
+        .instruction-tag { position: absolute; bottom: 30px; right: 30px; background: rgba(0,0,0,0.7); color: white; padding: 8px 15px; border-radius: 20px; font-size: 0.85rem; pointer-events: none; opacity: 0.5; }
     </style>
 </head>
 <body>
@@ -140,7 +113,7 @@
         </div>
     </div>
     <div class="graphic-container" id="svg-wrapper" data-current-state="step-1">
-        </div>
+    </div>
 </div>
 
 <section class="data-section">
@@ -210,19 +183,19 @@
         <div class="step three-step" data-three-state="0">
             <div>
                 <h2>1. The Monolith</h2>
-                <p>Visualizing the true scale of the BIM data. Exactly <b>6,484</b> individual cubic meters of structural mass are computationally rendered here as a single, dense architectural monolith.</p>
+                <p>Visualizing the true scale of the BIM data. Exactly <b>6,484</b> individual cubic meters of structural mass are computationally rendered here as a single, dense, architectural monolith.</p>
             </div>
         </div>
         <div class="step three-step" data-three-state="1">
             <div>
                 <h2>2. Deconstruction</h2>
-                <p>The destructive energy of the demolition process shatters the monolith, severing the geometric relationships of the architecture into a chaotic point cloud of individual material assets.</p>
+                <p>The retained structural core (<b>2,723 m³</b>) locks into place and turns black. The demolished volume (<b>3,761 m³</b>) is severed from the geometry, exploding into a chaotic point cloud.</p>
             </div>
         </div>
         <div class="step three-step" data-three-state="2">
             <div>
                 <h2>3. Material Destiny</h2>
-                <p>The elements are spatially segregated. <b>2,723 m³</b> are retained as the permanent core (Black). <b>3,721 m³</b> are scattered as generic waste and recycling (Grey). Emerging in the foreground are exactly <b>40 m³</b> of high-value salvaged materials (Red). <br><br><i>Click and drag to rotate the 3D model and explore the volumetric disparity.</i></p>
+                <p>The demolished volume is mathematically ordered into distinct destinations. The bulk waste and recycling (<b>3,721 m³</b>) stacks into a dense mass. Emerging in the foreground are exactly <b>40 m³</b> of high-value salvaged materials (Red), while the permanent core remains fixed in the center.<br><br><i>Click and drag to rotate the 3D model and explore the volumetric disparity.</i></p>
             </div>
         </div>
     </div>
@@ -233,10 +206,7 @@
 </div>
 
 <script>
-    // ---------------------------------------------------------
-    // 1. SCROLLYTELLING LOGIC (SVG)
-    // ---------------------------------------------------------
-    fetch('State1-3.txt')
+    fetch('state1-3.txt')
         .then(response => { if (!response.ok) throw new Error(); return response.text(); })
         .then(svgCode => {
             const wrapper = document.getElementById('svg-wrapper');
@@ -262,9 +232,6 @@
         steps.forEach(step => observer.observe(step));
     }
 
-    // ---------------------------------------------------------
-    // 2. D3 TREEMAP (VOLUME COMPARISON)
-    // ---------------------------------------------------------
     function drawTreemap() {
         const container = document.getElementById("treemap-diagram");
         container.innerHTML = "";
@@ -299,9 +266,6 @@
         leaf.append("div").attr("class", "treemap-value").style("font-size", d => (d.x1 - d.x0) > 100 && (d.y1 - d.y0) > 40 ? "1.1rem" : "0px").text(d => d.value.toLocaleString() + " m³");
     }
 
-    // ---------------------------------------------------------
-    // 3. D3 SANKEY DIAGRAM
-    // ---------------------------------------------------------
     const sankeyData = {
         nodes: [
             { name: "TVR7 Pre-Demolition (TVR7 Site)", category: "source" }, { name: "Bulk Recycling (Puinrecyclage)", category: "recycle" }, { name: "Standard Landfill (Stortplaats)", category: "waste" }, { name: "Hazardous Disposal (Gevaarlijk Afval)", category: "hazard" }, { name: "Secondary Market (Tweedehandsmarkt)", category: "salvage" }, { name: "Artwork Relocation (Kunstbehoud)", category: "salvage" }, { name: "Soil Reuse (Grondhergebruik)", category: "recycle" }, { name: "Masonry Walls (Metselwerk Muren)", category: "recycle" }, { name: "Concrete Walls (Beton Muren)", category: "recycle" }, { name: "Concrete Floors (Betonvloeren)", category: "recycle" }, { name: "Concrete Roof (Betondak)", category: "recycle" }, { name: "Concrete Structure (Structuurelementen)", category: "recycle"}, { name: "Floor Screed (Dekvloer)", category: "recycle" }, { name: "Ext. Pavement (Verhardingen)", category: "recycle" }, { name: "Pitched Roof (Hellend Dak)", category: "waste" }, { name: "Flat Roof (Plat Dak)", category: "waste" }, { name: "Exterior Joinery (Buitenschrijnwerk)", category: "waste" }, { name: "Sun Screens (Screens)", category: "waste" }, { name: "Plasterwork (Pleisterwerk)", category: "waste" }, { name: "Asbestos Slates (Asbest Leien)", category: "hazard" }, { name: "Facade Bricks (Gevelsteen)", category: "salvage" }, { name: "Interior Bricks (Binnenmuursteen)", category: "salvage" }, { name: "Blue Stone Floors (Blauwe Steen Vloer)", category: "salvage" }, { name: "Blue Stone Paving (Blauwe Steen Buiten)", category: "salvage" }, { name: "Wood Wainscoting (Lambrisering)", category: "salvage" }, { name: "Sills (Tabletten)", category: "salvage" }, { name: "Wooden Handrails (Handgrepen)", category: "salvage" }, { name: "Original Signage (Signalisatie)", category: "salvage" }, { name: "Statue 'Vrouw van Lot' (Kunstwerk)", category: "salvage" }, { name: "Excavated Soil (Uitgegraven Bodem)", category: "recycle" }
@@ -334,122 +298,109 @@
             .on("mouseleave", () => tooltip.style("opacity", 0));
     }
 
-    // ---------------------------------------------------------
-    // 4. THREE.JS PARTICLE MONOLITH (COMPUTATIONAL MASSING)
-    // ---------------------------------------------------------
     function initThreeJS() {
         const container = document.getElementById('three-canvas-container');
         const scene = new THREE.Scene();
         
-        // Setup Camera & Renderer
         const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 1000);
         camera.position.set(35, 45, 60);
         camera.lookAt(0, 12, 0);
         
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(container.clientWidth, container.clientHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Prevent lag on retina displays
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); 
         container.appendChild(renderer.domElement);
 
-        // Lighting
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
         scene.add(ambientLight);
         const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
         dirLight.position.set(10, 20, 10);
         scene.add(dirLight);
 
-        // The Data: Exactly 6,484 cubes
         const totalCubes = 6484;
         const countRetained = 2723;
         const countWaste = 3721;
         const countSalvage = 40;
 
-        // Create the InstancedMesh
-        const geometry = new THREE.BoxGeometry(0.85, 0.85, 0.85); // Slightly smaller than 1 for gaps
+        const geometry = new THREE.BoxGeometry(0.85, 0.85, 0.85); 
         const material = new THREE.MeshLambertMaterial({ color: 0xffffff });
         const mesh = new THREE.InstancedMesh(geometry, material, totalCubes);
         scene.add(mesh);
 
-        // Arrays to hold matrix positions and colors for the 3 States
         const states = [
-            { pos: [], col: [] }, // State 0: Monolith
-            { pos: [], col: [] }, // State 1: Exploded
-            { pos: [], col: [] }  // State 2: Segregated
+            { pos: [], col: [] }, 
+            { pos: [], col: [] }, 
+            { pos: [], col: [] }  
         ];
 
-        // Colors
-        const colNeutral = new THREE.Color("#cccccc");
+        const colNeutral = new THREE.Color("#aaaaaa");
         const colBlack = new THREE.Color("#111111");
-        const colGrey = new THREE.Color("#aaaaaa");
+        const colGrey = new THREE.Color("#cccccc"); 
         const colRed = new THREE.Color("#ed1c24");
 
         const dummy = new THREE.Object3D();
         
-        // --- Calculate STATE 0: Monolith (19x19x18 packed grid) ---
+        let monolithPositions = [];
         let i = 0;
-        let dim = 19;
-        for (let x = 0; x < dim; x++) {
-            for (let y = 0; y < dim; y++) {
-                for (let z = 0; z < dim; z++) {
+        let dimX = 19, dimY = 18, dimZ = 19;
+        
+        for (let y = 0; y < dimY; y++) {
+            for (let x = 0; x < dimX; x++) {
+                for (let z = 0; z < dimZ; z++) {
                     if (i >= totalCubes) break;
-                    states[0].pos.push(new THREE.Vector3(x - dim/2, y, z - dim/2));
-                    states[0].col.push(colNeutral.clone());
+                    monolithPositions.push(new THREE.Vector3(x - dimX/2 + 0.5, y, z - dimZ/2 + 0.5));
                     i++;
                 }
             }
         }
 
-        // --- Calculate STATE 1: Exploded (Random sphere) ---
-        for (let i = 0; i < totalCubes; i++) {
-            const r = 20 * Math.cbrt(Math.random()); // spherical distribution
-            const theta = Math.random() * 2 * Math.PI;
-            const phi = Math.acos(2 * Math.random() - 1);
-            const x = r * Math.sin(phi) * Math.cos(theta);
-            const y = r * Math.sin(phi) * Math.sin(theta) + 15;
-            const z = r * Math.cos(phi);
-            
-            states[1].pos.push(new THREE.Vector3(x, y, z));
-            states[1].col.push(colNeutral.clone());
+        for (let j = 0; j < totalCubes; j++) {
+            states[0].pos.push(monolithPositions[j].clone());
+            states[0].col.push(colNeutral.clone());
+
+            if (j < countRetained) {
+                states[1].pos.push(monolithPositions[j].clone());
+                states[1].col.push(colBlack.clone());
+
+                states[2].pos.push(monolithPositions[j].clone());
+                states[2].col.push(colBlack.clone());
+            } else if (j < countRetained + countWaste) {
+                const r = 20 * Math.cbrt(Math.random()) + 10;
+                const theta = Math.random() * 2 * Math.PI;
+                const phi = Math.acos(2 * Math.random() - 1);
+                states[1].pos.push(new THREE.Vector3(
+                    r * Math.sin(phi) * Math.cos(theta),
+                    r * Math.sin(phi) * Math.sin(theta) + 25,
+                    r * Math.cos(phi)
+                ));
+                states[1].col.push(colNeutral.clone());
+
+                let wIndex = j - countRetained;
+                let wX = (wIndex % 15) - 20; 
+                let wY = Math.floor((wIndex / 15) % 17);
+                let wZ = Math.floor(wIndex / (15 * 17)) - 7.5;
+                states[2].pos.push(new THREE.Vector3(wX, wY, wZ));
+                states[2].col.push(colGrey.clone());
+            } else {
+                const r = 20 * Math.cbrt(Math.random()) + 10;
+                const theta = Math.random() * 2 * Math.PI;
+                const phi = Math.acos(2 * Math.random() - 1);
+                states[1].pos.push(new THREE.Vector3(
+                    r * Math.sin(phi) * Math.cos(theta),
+                    r * Math.sin(phi) * Math.sin(theta) + 25,
+                    r * Math.cos(phi)
+                ));
+                states[1].col.push(colNeutral.clone());
+
+                let sIndex = j - (countRetained + countWaste);
+                let sX = (sIndex % 5) - 2.5;
+                let sY = Math.floor((sIndex / 5) % 2);
+                let sZ = Math.floor(sIndex / 10) + 15; 
+                states[2].pos.push(new THREE.Vector3(sX, sY, sZ));
+                states[2].col.push(colRed.clone());
+            }
         }
 
-        // --- Calculate STATE 2: Segregated Destiny ---
-        let c = 0;
-        const lift = 6; // Lifts the entire final state up into the center of the camera frame
-        
-        // 1. Retained (Core, packed 14x14x14 grid)
-        let dimR = 14;
-        for(let i=0; i<countRetained; i++) {
-            let x = (i % dimR) - dimR/2;
-            let y = Math.floor((i / dimR) % dimR) + lift; // Applied lift
-            let z = Math.floor(i / (dimR*dimR)) - dimR/2;
-            states[2].pos.push(new THREE.Vector3(x, y, z));
-            states[2].col.push(colBlack.clone());
-            c++;
-        }
-        // 2. Waste (Scattered ring on floor)
-        for(let i=0; i<countWaste; i++) {
-            const angle = Math.random() * Math.PI * 2;
-            const radius = 12 + Math.random() * 20; // Ring between 12 and 32
-            const x = Math.cos(angle) * radius;
-            const z = Math.sin(angle) * radius;
-            const y = (Math.random() * 2) + lift; // Applied lift to the flat ground
-            states[2].pos.push(new THREE.Vector3(x, y, z));
-            states[2].col.push(colGrey.clone());
-            c++;
-        }
-        // 3. Salvage (Neat pallet in front)
-        let dx=0, dy=0, dz=0;
-        for(let i=0; i<countSalvage; i++) {
-            // Applied lift to the pallet
-            states[2].pos.push(new THREE.Vector3(dx - 2, dy + lift, dz + 20)); 
-            states[2].col.push(colRed.clone());
-            dx++;
-            if(dx >= 5) { dx=0; dz++; }
-            if(dz >= 2) { dz=0; dy++; }
-            c++;
-        }
-
-        // Initialize at State 0
         const currentPos = [];
         const currentCol = [];
         for (let i = 0; i < totalCubes; i++) {
@@ -464,7 +415,6 @@
         mesh.instanceMatrix.needsUpdate = true;
         mesh.instanceColor.needsUpdate = true;
 
-        // Interaction state logic
         let activeState = 0;
         const steps = document.querySelectorAll('.three-step');
         const observer = new IntersectionObserver((entries) => {
@@ -478,7 +428,6 @@
         }, { threshold: 0.5 });
         steps.forEach(step => observer.observe(step));
 
-        // Simple Drag to Rotate
         let isDragging = false;
         let previousMousePosition = { x: 0, y: 0 };
         container.addEventListener('mousedown', (e) => { isDragging = true; });
@@ -492,19 +441,16 @@
         });
         window.addEventListener('mouseup', () => { isDragging = false; });
 
-        // Render Loop & Interpolation (Lerp)
         function animate() {
             requestAnimationFrame(animate);
             let needsUpdate = false;
 
             for (let i = 0; i < totalCubes; i++) {
-                // Lerp Position
-                currentPos[i].lerp(states[activeState].pos[i], 0.03); // Speed of animation
+                currentPos[i].lerp(states[activeState].pos[i], 0.03); 
                 dummy.position.copy(currentPos[i]);
                 dummy.updateMatrix();
                 mesh.setMatrixAt(i, dummy.matrix);
                 
-                // Lerp Color
                 currentCol[i].lerp(states[activeState].col[i], 0.05);
                 mesh.setColorAt(i, currentCol[i]);
                 
@@ -520,7 +466,6 @@
         }
         animate();
 
-        // Handle Resize
         window.addEventListener('resize', () => {
             camera.aspect = container.clientWidth / container.clientHeight;
             camera.updateProjectionMatrix();
@@ -528,7 +473,6 @@
         });
     }
 
-    // Initialize all visualizations
     window.onload = () => {
         drawTreemap();
         drawSankey();
@@ -540,5 +484,6 @@
         drawSankey();
     };
 </script>
+
 </body>
 </html>
