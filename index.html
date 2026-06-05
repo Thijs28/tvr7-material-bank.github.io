@@ -26,11 +26,12 @@
             color: var(--text-main); 
         }
         
+        /* 1. SCROLLYTELLING SECTION (SVG) */
         .scrolly-container { display: flex; align-items: flex-start; background-color: var(--bg-animation); }
-        .text-overlay { width: 30%; padding: 0 5%; position: relative; z-index: 10; background-color: var(--bg-animation); }
+        .text-overlay { width: 25%; padding: 0 5%; position: relative; z-index: 10; background-color: var(--bg-animation); }
         
         .graphic-container { 
-            width: 70%; height: 100vh; position: sticky; top: 0; 
+            width: 75%; height: 100vh; position: sticky; top: 0; 
             display: flex; justify-content: center; align-items: center; 
             background-color: var(--bg-animation);
         }
@@ -40,7 +41,7 @@
         .step h2 { font-size: 2.2rem; margin-bottom: 1rem; letter-spacing: -1px; border-left: 4px solid var(--accent); padding-left: 15px; }
         .step p { font-size: 1.15rem; line-height: 1.6; color: var(--text-muted); }
         
-        svg.blueprint { width: 115%; height: auto; max-height: 120vh; }
+        svg.blueprint { width: 150%; height: auto; max-height: 150vh; }
         svg.blueprint g[id^="state_1"], svg.blueprint g[id^="state_2"], svg.blueprint g[id^="state_3"] { 
             opacity: 0; transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1); transform: translateZ(0);
         }
@@ -48,10 +49,12 @@
         #svg-wrapper[data-current-state="step-2"] svg.blueprint g[id^="state_2"] { opacity: 1; }
         #svg-wrapper[data-current-state="step-3"] svg.blueprint g[id^="state_3"] { opacity: 1; }
 
+        /* 2. DATA SECTION */
         .data-section { padding: 80px 5vw; background-color: var(--bg-data); border-top: 1px solid var(--border); }
         .data-section h2 { font-size: 2rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px; }
         .data-section p.subtitle { color: var(--text-muted); margin-bottom: 60px; font-size: 1.1rem; max-width: 800px;}
 
+        /* Treemap & Sankey Styling */
         #treemap-diagram { width: 100%; height: 500px; margin-bottom: 80px; position: relative; }
         .treemap-node { position: absolute; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: white; overflow: hidden; outline: 1px solid #fff; transition: background 0.3s; cursor: default; }
         .treemap-node:hover { filter: brightness(1.1); }
@@ -73,6 +76,7 @@
         }
         .d3-tooltip span { color: var(--accent); font-weight: bold; font-family: monospace; font-size: 14px;}
 
+        /* Table Styling */
         table { width: 100%; border-collapse: collapse; font-size: 1.05rem; }
         th, td { padding: 12px 20px; text-align: left; border-bottom: 1px solid var(--border); }
         th { background-color: #f9f9f9; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
@@ -82,6 +86,7 @@
         .highlight-val { font-weight: bold; font-family: monospace; font-size: 1.1rem; color: var(--accent); }
         i { color: #888; font-size: 0.9em; font-weight: normal; }
 
+        /* 3. 3D PARTICLE MONOLITH SECTION */
         .three-section {
             border-top: 1px solid var(--border);
         }
@@ -327,7 +332,7 @@
         const scene = new THREE.Scene();
         
         const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 1000);
-        camera.position.set(0, 45, 95);
+        camera.position.set(0, 45, 100);
         camera.lookAt(0, 12, 0);
         
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -363,65 +368,83 @@
         const colRed = new THREE.Color("#ed1c24");
 
         const dummy = new THREE.Object3D();
+        const lift = 6;
         
+        let monolithPositions = [];
         let i = 0;
-        let dim = 19;
-        for (let x = 0; x < dim; x++) {
-            for (let y = 0; y < dim; y++) {
-                for (let z = 0; z < dim; z++) {
+        let dimX = 19, dimY = 18, dimZ = 19;
+        for (let y = 0; y < dimY; y++) {
+            for (let x = 0; x < dimX; x++) {
+                for (let z = 0; z < dimZ; z++) {
                     if (i >= totalCubes) break;
-                    states[0].pos.push(new THREE.Vector3(x - dim/2, y, z - dim/2));
-                    states[0].col.push(colNeutral.clone());
+                    monolithPositions.push(new THREE.Vector3(x - dimX/2 + 0.5, y, z - dimZ/2 + 0.5));
                     i++;
                 }
             }
         }
 
-        for (let i = 0; i < totalCubes; i++) {
-            const r = 20 * Math.cbrt(Math.random()); 
-            const theta = Math.random() * 2 * Math.PI;
-            const phi = Math.acos(2 * Math.random() - 1);
-            const x = r * Math.sin(phi) * Math.cos(theta);
-            const y = r * Math.sin(phi) * Math.sin(theta) + 15;
-            const z = r * Math.cos(phi);
-            
-            states[1].pos.push(new THREE.Vector3(x, y, z));
-            states[1].col.push(colNeutral.clone());
-        }
+        for (let j = 0; j < totalCubes; j++) {
+            // State 0: Monolith
+            states[0].pos.push(monolithPositions[j].clone());
+            states[0].col.push(colNeutral.clone());
 
-        let c = 0;
-        const lift = 6; 
-        
-        let dimR = 14;
-        for(let i=0; i<countRetained; i++) {
-            let x = (i % dimR) - dimR/2;
-            let y = Math.floor((i / dimR) % dimR) + lift; 
-            let z = Math.floor(i / (dimR*dimR)) - dimR/2;
-            states[2].pos.push(new THREE.Vector3(x, y, z));
-            states[2].col.push(colBlack.clone());
-            c++;
-        }
-        
-        let wDimX = 16, wDimZ = 16;
-        let wLayer = wDimX * wDimZ;
-        for(let wIndex=0; wIndex<countWaste; wIndex++) {
-            let wX = (wIndex % wDimX) - wDimX/2 - 24; 
-            let wZ = Math.floor((wIndex % wLayer) / wDimX) - wDimZ/2;
-            let wY = Math.floor(wIndex / wLayer) + lift;
-            states[2].pos.push(new THREE.Vector3(wX, wY, wZ));
-            states[2].col.push(colGrey.clone());
-            c++;
-        }
-        
-        let sDimX = 4, sDimZ = 5;
-        let sLayer = sDimX * sDimZ;
-        for(let sIndex=0; sIndex<countSalvage; sIndex++) {
-            let sX = (sIndex % sDimX) - sDimX/2 + 12; 
-            let sZ = Math.floor((sIndex % sLayer) / sDimX) - sDimZ/2;
-            let sY = Math.floor(sIndex / sLayer) + lift;
-            states[2].pos.push(new THREE.Vector3(sX, sY, sZ));
-            states[2].col.push(colRed.clone());
-            c++;
+            if (j < countRetained) {
+                // RETAINED VOLUME: Stays in place, turns Black in State 1
+                states[1].pos.push(monolithPositions[j].clone());
+                states[1].col.push(colBlack.clone());
+                
+                // State 2: Ordered Black Core
+                let dimR = 14;
+                let rX = (j % dimR) - dimR/2 + 0.5;
+                let rY = Math.floor((j / dimR) % dimR) + lift;
+                let rZ = Math.floor(j / (dimR*dimR)) - dimR/2 + 0.5;
+                states[2].pos.push(new THREE.Vector3(rX, rY, rZ));
+                states[2].col.push(colBlack.clone());
+                
+            } else if (j < countRetained + countWaste) {
+                // WASTE VOLUME: Explodes in State 1 (Radius increased by ~30%)
+                const r = 30 * Math.cbrt(Math.random()) + 5; 
+                const theta = Math.random() * 2 * Math.PI;
+                const phi = Math.acos(2 * Math.random() - 1);
+                states[1].pos.push(new THREE.Vector3(
+                    r * Math.sin(phi) * Math.cos(theta),
+                    r * Math.sin(phi) * Math.sin(theta) + 20,
+                    r * Math.cos(phi)
+                ));
+                states[1].col.push(colNeutral.clone());
+
+                // State 2: Stacks Left (Moved further left to -18)
+                let wIndex = j - countRetained;
+                let wDimX = 16, wDimZ = 16;
+                let wLayer = wDimX * wDimZ;
+                let wX = (wIndex % wDimX) - wDimX/2 - 18; 
+                let wZ = Math.floor((wIndex % wLayer) / wDimX) - wDimZ/2;
+                let wY = Math.floor(wIndex / wLayer) + lift;
+                states[2].pos.push(new THREE.Vector3(wX, wY, wZ));
+                states[2].col.push(colGrey.clone());
+                
+            } else {
+                // SALVAGE VOLUME: Explodes in State 1 (Radius increased by ~30%)
+                const r = 30 * Math.cbrt(Math.random()) + 5; 
+                const theta = Math.random() * 2 * Math.PI;
+                const phi = Math.acos(2 * Math.random() - 1);
+                states[1].pos.push(new THREE.Vector3(
+                    r * Math.sin(phi) * Math.cos(theta),
+                    r * Math.sin(phi) * Math.sin(theta) + 20,
+                    r * Math.cos(phi)
+                ));
+                states[1].col.push(colNeutral.clone());
+
+                // State 2: Stacks Right (Moved further right to +18)
+                let sIndex = j - (countRetained + countWaste);
+                let sDimX = 4, sDimZ = 5;
+                let sLayer = sDimX * sDimZ;
+                let sX = (sIndex % sDimX) - sDimX/2 + 18; 
+                let sZ = Math.floor((sIndex % sLayer) / sDimX) - sDimZ/2;
+                let sY = Math.floor(sIndex / sLayer) + lift;
+                states[2].pos.push(new THREE.Vector3(sX, sY, sZ));
+                states[2].col.push(colRed.clone());
+            }
         }
 
         const currentPos = [];
