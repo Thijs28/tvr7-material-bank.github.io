@@ -29,7 +29,6 @@
         .scrolly-container { display: flex; align-items: flex-start; background-color: var(--bg-animation); }
         .text-overlay { width: 40%; padding: 0 5%; position: relative; z-index: 10; background-color: var(--bg-animation); }
         
-        /* Removed overflow: hidden from here so SVG is not clipped */
         .graphic-container { 
             width: 60%; height: 100vh; position: sticky; top: 0; 
             display: flex; justify-content: center; align-items: center; 
@@ -208,303 +207,314 @@
 </div>
 
 <script>
-    // Bulletproof SVG Fetch (Strips XML errors automatically)
-    fetch('state1-3.txt')
-        .then(response => { if (!response.ok) throw new Error(); return response.text(); })
-        .then(svgCode => {
-            const cleanSvg = svgCode.replace(/<\?xml.*?\?>/g, '').replace(//g, '');
-            const wrapper = document.getElementById('svg-wrapper');
-            wrapper.innerHTML = cleanSvg;
-            const svgEl = wrapper.querySelector('svg');
-            if(svgEl) svgEl.classList.add('blueprint');
-            initScroll();
-        })
-        .catch(error => console.error("SVG fetch error:", error));
-
-    function initScroll() {
-        const steps = document.querySelectorAll('.step:not(.three-step)');
-        const svgWrapper = document.getElementById('svg-wrapper');
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    steps.forEach(s => s.classList.remove('is-active'));
-                    entry.target.classList.add('is-active');
-                    svgWrapper.setAttribute('data-current-state', entry.target.getAttribute('data-state'));
-                }
-            });
-        }, { threshold: 0.5 });
-        steps.forEach(step => observer.observe(step));
-    }
-
-    function drawTreemap() {
-        const container = document.getElementById("treemap-diagram");
-        container.innerHTML = "";
-        const width = container.clientWidth, height = container.clientHeight;
-
-        const volumeData = {
-            name: "Pre-Demolition Total", value: 6484.19,
-            children: [
-                { name: "Post-Demolition Retained Structure", dutch: "Behouden Skelet", value: 2723.36, color: "#111111" },
-                { name: "Demolished Mass", children: [
-                    { name: "Leftover & Bulk Waste", dutch: "Gedeconstrueerd (Puin & Afval)", value: 3720.83, color: "#999999" },
-                    { name: "Salvaged for Reuse", dutch: "Gerecupereerd", value: 40.00, color: "#ed1c24" }
-                ]}
-            ]
-        };
-
-        const root = d3.hierarchy(volumeData).sum(d => d.value).sort((a, b) => b.value - a.value);
-        d3.treemap().size([width, height]).padding(2).paddingInner(4)(root);
-
-        const svg = d3.select(container).append("div").style("position", "relative").style("width", `${width}px`).style("height", `${height}px`);
-
-        const leaf = svg.selectAll("div").data(root.leaves()).join("div").attr("class", "treemap-node")
-            .style("left", d => `${d.x0}px`).style("top", d => `${d.y0}px`).style("width", d => `${d.x1 - d.x0}px`).style("height", d => `${d.y1 - d.y0}px`)
-            .style("background-color", d => d.data.color)
-            .on("mousemove", function(event, d) {
-                d3.select("#tooltip").style("opacity", 1).html(`<strong>${d.data.name}</strong><br><span>${d.value.toLocaleString()} m³</span>`)
-                  .style("left", (event.pageX + 15) + "px").style("top", (event.pageY - 28) + "px");
-            }).on("mouseleave", () => d3.select("#tooltip").style("opacity", 0));
-
-        leaf.append("div").attr("class", "treemap-title").style("font-size", d => (d.x1 - d.x0) > 100 && (d.y1 - d.y0) > 60 ? "1.2rem" : "0px").text(d => d.data.name);
-        leaf.append("div").attr("class", "treemap-dutch").style("font-size", d => (d.x1 - d.x0) > 100 && (d.y1 - d.y0) > 80 ? "0.9rem" : "0px").text(d => d.data.dutch);
-        leaf.append("div").attr("class", "treemap-value").style("font-size", d => (d.x1 - d.x0) > 100 && (d.y1 - d.y0) > 40 ? "1.1rem" : "0px").text(d => d.value.toLocaleString() + " m³");
-    }
-
-    const sankeyData = {
-        nodes: [
-            { name: "TVR7 Pre-Demolition (TVR7 Site)", category: "source" }, { name: "Bulk Recycling (Puinrecyclage)", category: "recycle" }, { name: "Standard Landfill (Stortplaats)", category: "waste" }, { name: "Hazardous Disposal (Gevaarlijk Afval)", category: "hazard" }, { name: "Secondary Market (Tweedehandsmarkt)", category: "salvage" }, { name: "Artwork Relocation (Kunstbehoud)", category: "salvage" }, { name: "Soil Reuse (Grondhergebruik)", category: "recycle" }, { name: "Masonry Walls (Metselwerk Muren)", category: "recycle" }, { name: "Concrete Walls (Beton Muren)", category: "recycle" }, { name: "Concrete Floors (Betonvloeren)", category: "recycle" }, { name: "Concrete Roof (Betondak)", category: "recycle" }, { name: "Concrete Structure (Structuurelementen)", category: "recycle"}, { name: "Floor Screed (Dekvloer)", category: "recycle" }, { name: "Ext. Pavement (Verhardingen)", category: "recycle" }, { name: "Pitched Roof (Hellend Dak)", category: "waste" }, { name: "Flat Roof (Plat Dak)", category: "waste" }, { name: "Exterior Joinery (Buitenschrijnwerk)", category: "waste" }, { name: "Sun Screens (Screens)", category: "waste" }, { name: "Plasterwork (Pleisterwerk)", category: "waste" }, { name: "Asbestos Slates (Asbest Leien)", category: "hazard" }, { name: "Facade Bricks (Gevelsteen)", category: "salvage" }, { name: "Interior Bricks (Binnenmuursteen)", category: "salvage" }, { name: "Blue Stone Floors (Blauwe Steen Vloer)", category: "salvage" }, { name: "Blue Stone Paving (Blauwe Steen Buiten)", category: "salvage" }, { name: "Wood Wainscoting (Lambrisering)", category: "salvage" }, { name: "Sills (Tabletten)", category: "salvage" }, { name: "Wooden Handrails (Handgrepen)", category: "salvage" }, { name: "Original Signage (Signalisatie)", category: "salvage" }, { name: "Statue 'Vrouw van Lot' (Kunstwerk)", category: "salvage" }, { name: "Excavated Soil (Uitgegraven Bodem)", category: "recycle" }
-        ],
-        links: [
-            { source: 0, target: 7, value: 235.31, unit: "m³" }, { source: 0, target: 8, value: 82.47, unit: "m³" }, { source: 0, target: 9, value: 1164.57, unit: "m²" }, { source: 0, target: 10, value: 156.32, unit: "m²" }, { source: 0, target: 11, value: 93.46, unit: "m³ & st" }, { source: 0, target: 12, value: 193.74, unit: "m²" }, { source: 0, target: 13, value: 27.61, unit: "m²" }, { source: 0, target: 14, value: 144.88, unit: "m²" }, { source: 0, target: 15, value: 450.34, unit: "m²" }, { source: 0, target: 16, value: 899.33, unit: "m²" }, { source: 0, target: 17, value: 247.33, unit: "m²" }, { source: 0, target: 18, value: 257.16, unit: "m²" }, { source: 0, target: 19, value: 67.51, unit: "m²" }, { source: 0, target: 20, value: 20.94, unit: "m³" }, { source: 0, target: 21, value: 11.27, unit: "m³" }, { source: 0, target: 22, value: 97.17, unit: "m²" }, { source: 0, target: 23, value: 48.79, unit: "m²" }, { source: 0, target: 24, value: 54.40, unit: "m²" }, { source: 0, target: 25, value: 61.84, unit: "m" }, { source: 0, target: 26, value: 11.00, unit: "st" }, { source: 0, target: 27, value: 6.00, unit: "st" }, { source: 0, target: 28, value: 1.00, unit: "Unit" }, { source: 0, target: 29, value: 1098.01, unit: "m³" }, { source: 7, target: 1, value: 235.31, unit: "m³" }, { source: 8, target: 1, value: 82.47, unit: "m³" }, { source: 9, target: 1, value: 1164.57, unit: "m²" }, { source: 10, target: 1, value: 156.32, unit: "m²" }, { source: 11, target: 1, value: 93.46, unit: "m³ & st" }, { source: 12, target: 1, value: 193.74, unit: "m²" }, { source: 13, target: 1, value: 27.61, unit: "m²" }, { source: 14, target: 2, value: 144.88, unit: "m²" }, { source: 15, target: 2, value: 450.34, unit: "m²" }, { source: 16, target: 2, value: 899.33, unit: "m²" }, { source: 17, target: 2, value: 247.33, unit: "m²" }, { source: 18, target: 2, value: 257.16, unit: "m²" }, { source: 19, target: 3, value: 67.51, unit: "m²" }, { source: 20, target: 4, value: 20.94, unit: "m³" }, { source: 21, target: 4, value: 11.27, unit: "m³" }, { source: 22, target: 4, value: 97.17, unit: "m²" }, { source: 23, target: 4, value: 48.79, unit: "m²" }, { source: 24, target: 4, value: 54.40, unit: "m²" }, { source: 25, target: 4, value: 61.84, unit: "m" }, { source: 26, target: 4, value: 11.00, unit: "st" }, { source: 27, target: 4, value: 6.00, unit: "st" }, { source: 28, target: 5, value: 1.00, unit: "Unit" }, { source: 29, target: 6, value: 1098.01, unit: "m³" }
-        ]
-    };
-    const colorMap = { "source": "#111111", "salvage": "#ed1c24", "recycle": "#999999", "waste": "#dddddd", "hazard": "#444444" };
-
-    function drawSankey() {
-        const container = document.getElementById("sankey-diagram");
-        container.innerHTML = "";
-        const width = container.clientWidth, height = container.clientHeight;
-        const svg = d3.select("#sankey-diagram").append("svg").attr("width", width).attr("height", height);
-        const sankey = d3.sankey().nodeWidth(20).nodePadding(12).extent([[10, 10], [width - 10, height - 10]]);
-        const {nodes, links} = sankey(sankeyData);
-
-        const link = svg.append("g").selectAll("path").data(links).join("path").attr("class", "link")
-            .attr("d", d3.sankeyLinkHorizontal()).attr("stroke", d => colorMap[d.source.category]).attr("stroke-width", d => Math.max(1.5, d.width));
-        const node = svg.append("g").selectAll("g").data(nodes).join("g").attr("class", "node");
-        node.append("rect").attr("x", d => d.x0).attr("y", d => d.y0).attr("height", d => Math.max(2, d.y1 - d.y0)).attr("width", d => d.x1 - d.x0).attr("fill", d => colorMap[d.category]);
-        node.append("text").attr("x", d => d.x0 < width / 2 ? d.x1 + 8 : d.x0 - 8).attr("y", d => (d.y1 + d.y0) / 2).attr("dy", "0.35em").attr("text-anchor", d => d.x0 < width / 2 ? "start" : "end")
-            .html(d => d.name.split(" (")[0] + (d.name.split(" (")[1] ? ` <tspan fill="#888" font-style="italic">(${d.name.split(" (")[1]}</tspan>` : ""));
-
-        const tooltip = d3.select("#tooltip");
-        link.on("mousemove", function(event, d) { tooltip.style("opacity", 1).html(`${d.source.name.split(" (")[0]} → ${d.target.name.split(" (")[0]}<br><span>${d.value} ${d.unit}</span>`).style("left", (event.pageX + 15) + "px").style("top", (event.pageY - 28) + "px"); d3.select(this).style("stroke-opacity", 0.8); })
-            .on("mouseleave", function() { tooltip.style("opacity", 0); d3.select(this).style("stroke-opacity", 0.2); });
-        node.on("mousemove", function(event, d) { tooltip.style("opacity", 1).html(`<strong>${d.name.split(" (")[0]}</strong>`).style("left", (event.pageX + 15) + "px").style("top", (event.pageY - 28) + "px"); })
-            .on("mouseleave", () => tooltip.style("opacity", 0));
+    // ---------------------------------------------------------
+    // 1. ISOLATED SVG FETCH (Fixed Multi-line XML Bug)
+    // ---------------------------------------------------------
+    function initSVG() {
+        try {
+            fetch('state1-3.txt')
+                .then(response => { if (!response.ok) throw new Error(); return response.text(); })
+                .then(svgCode => {
+                    // Strips XML even if it spans multiple lines
+                    const cleanSvg = svgCode.replace(/<\?xml[\s\S]*?\?>/gi, '').replace(//gi, '');
+                    const wrapper = document.getElementById('svg-wrapper');
+                    if(wrapper) wrapper.innerHTML = cleanSvg;
+                    const svgEl = wrapper.querySelector('svg');
+                    if(svgEl) svgEl.classList.add('blueprint');
+                    
+                    // Init Scrollytelling
+                    const steps = document.querySelectorAll('.step:not(.three-step)');
+                    const observer = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                steps.forEach(s => s.classList.remove('is-active'));
+                                entry.target.classList.add('is-active');
+                                wrapper.setAttribute('data-current-state', entry.target.getAttribute('data-state'));
+                            }
+                        });
+                    }, { threshold: 0.5 });
+                    steps.forEach(step => observer.observe(step));
+                })
+                .catch(error => console.error("SVG fetch gracefully failed. Check file paths."));
+        } catch(e) { console.error("SVG Init Error:", e); }
     }
 
     // ---------------------------------------------------------
-    // REWRITTEN 3D GRID PACKING LOGIC
+    // 2. ISOLATED TREEMAP (Added zero-height failsafes)
+    // ---------------------------------------------------------
+    function drawTreemap() {
+        try {
+            const container = document.getElementById("treemap-diagram");
+            if(!container) return;
+            container.innerHTML = "";
+            const width = container.clientWidth || 1000;
+            const height = container.clientHeight || 500;
+
+            const volumeData = {
+                name: "Pre-Demolition Total", value: 6484.19,
+                children: [
+                    { name: "Post-Demolition Retained Structure", dutch: "Behouden Skelet", value: 2723.36, color: "#111111" },
+                    { name: "Demolished Mass", children: [
+                        { name: "Leftover & Bulk Waste", dutch: "Gedeconstrueerd (Puin & Afval)", value: 3720.83, color: "#999999" },
+                        { name: "Salvaged for Reuse", dutch: "Gerecupereerd", value: 40.00, color: "#ed1c24" }
+                    ]}
+                ]
+            };
+
+            const root = d3.hierarchy(volumeData).sum(d => d.value).sort((a, b) => b.value - a.value);
+            d3.treemap().size([width, height]).padding(2).paddingInner(4)(root);
+
+            const svg = d3.select(container).append("div").style("position", "relative").style("width", `${width}px`).style("height", `${height}px`);
+
+            const leaf = svg.selectAll("div").data(root.leaves()).join("div").attr("class", "treemap-node")
+                .style("left", d => `${d.x0}px`).style("top", d => `${d.y0}px`).style("width", d => `${d.x1 - d.x0}px`).style("height", d => `${d.y1 - d.y0}px`)
+                .style("background-color", d => d.data.color)
+                .on("mousemove", function(event, d) {
+                    d3.select("#tooltip").style("opacity", 1).html(`<strong>${d.data.name}</strong><br><span>${d.value.toLocaleString()} m³</span>`)
+                      .style("left", (event.pageX + 15) + "px").style("top", (event.pageY - 28) + "px");
+                }).on("mouseleave", () => d3.select("#tooltip").style("opacity", 0));
+
+            leaf.append("div").attr("class", "treemap-title").style("font-size", d => (d.x1 - d.x0) > 100 && (d.y1 - d.y0) > 60 ? "1.2rem" : "0px").text(d => d.data.name);
+            leaf.append("div").attr("class", "treemap-dutch").style("font-size", d => (d.x1 - d.x0) > 100 && (d.y1 - d.y0) > 80 ? "0.9rem" : "0px").text(d => d.data.dutch);
+            leaf.append("div").attr("class", "treemap-value").style("font-size", d => (d.x1 - d.x0) > 100 && (d.y1 - d.y0) > 40 ? "1.1rem" : "0px").text(d => d.value.toLocaleString() + " m³");
+        } catch(e) { console.error("Treemap Error:", e); }
+    }
+
+    // ---------------------------------------------------------
+    // 3. ISOLATED SANKEY (Fixed Data Mutation Crash)
+    // ---------------------------------------------------------
+    function drawSankey() {
+        try {
+            const container = document.getElementById("sankey-diagram");
+            if(!container) return;
+            container.innerHTML = "";
+            
+            // Failsafes to prevent negative math crash
+            const width = container.clientWidth || 1000;
+            const height = container.clientHeight || 900;
+            
+            // Data isolated INSIDE the function to prevent D3 mutation crashes on resize
+            const sankeyData = {
+                nodes: [
+                    { name: "TVR7 Pre-Demolition (TVR7 Site)", category: "source" }, { name: "Bulk Recycling (Puinrecyclage)", category: "recycle" }, { name: "Standard Landfill (Stortplaats)", category: "waste" }, { name: "Hazardous Disposal (Gevaarlijk Afval)", category: "hazard" }, { name: "Secondary Market (Tweedehandsmarkt)", category: "salvage" }, { name: "Artwork Relocation (Kunstbehoud)", category: "salvage" }, { name: "Soil Reuse (Grondhergebruik)", category: "recycle" }, { name: "Masonry Walls (Metselwerk Muren)", category: "recycle" }, { name: "Concrete Walls (Beton Muren)", category: "recycle" }, { name: "Concrete Floors (Betonvloeren)", category: "recycle" }, { name: "Concrete Roof (Betondak)", category: "recycle" }, { name: "Concrete Structure (Structuurelementen)", category: "recycle"}, { name: "Floor Screed (Dekvloer)", category: "recycle" }, { name: "Ext. Pavement (Verhardingen)", category: "recycle" }, { name: "Pitched Roof (Hellend Dak)", category: "waste" }, { name: "Flat Roof (Plat Dak)", category: "waste" }, { name: "Exterior Joinery (Buitenschrijnwerk)", category: "waste" }, { name: "Sun Screens (Screens)", category: "waste" }, { name: "Plasterwork (Pleisterwerk)", category: "waste" }, { name: "Asbestos Slates (Asbest Leien)", category: "hazard" }, { name: "Facade Bricks (Gevelsteen)", category: "salvage" }, { name: "Interior Bricks (Binnenmuursteen)", category: "salvage" }, { name: "Blue Stone Floors (Blauwe Steen Vloer)", category: "salvage" }, { name: "Blue Stone Paving (Blauwe Steen Buiten)", category: "salvage" }, { name: "Wood Wainscoting (Lambrisering)", category: "salvage" }, { name: "Sills (Tabletten)", category: "salvage" }, { name: "Wooden Handrails (Handgrepen)", category: "salvage" }, { name: "Original Signage (Signalisatie)", category: "salvage" }, { name: "Statue 'Vrouw van Lot' (Kunstwerk)", category: "salvage" }, { name: "Excavated Soil (Uitgegraven Bodem)", category: "recycle" }
+                ],
+                links: [
+                    { source: 0, target: 7, value: 235.31, unit: "m³" }, { source: 0, target: 8, value: 82.47, unit: "m³" }, { source: 0, target: 9, value: 1164.57, unit: "m²" }, { source: 0, target: 10, value: 156.32, unit: "m²" }, { source: 0, target: 11, value: 93.46, unit: "m³ & st" }, { source: 0, target: 12, value: 193.74, unit: "m²" }, { source: 0, target: 13, value: 27.61, unit: "m²" }, { source: 0, target: 14, value: 144.88, unit: "m²" }, { source: 0, target: 15, value: 450.34, unit: "m²" }, { source: 0, target: 16, value: 899.33, unit: "m²" }, { source: 0, target: 17, value: 247.33, unit: "m²" }, { source: 0, target: 18, value: 257.16, unit: "m²" }, { source: 0, target: 19, value: 67.51, unit: "m²" }, { source: 0, target: 20, value: 20.94, unit: "m³" }, { source: 0, target: 21, value: 11.27, unit: "m³" }, { source: 0, target: 22, value: 97.17, unit: "m²" }, { source: 0, target: 23, value: 48.79, unit: "m²" }, { source: 0, target: 24, value: 54.40, unit: "m²" }, { source: 0, target: 25, value: 61.84, unit: "m" }, { source: 0, target: 26, value: 11.00, unit: "st" }, { source: 0, target: 27, value: 6.00, unit: "st" }, { source: 0, target: 28, value: 1.00, unit: "Unit" }, { source: 0, target: 29, value: 1098.01, unit: "m³" }, { source: 7, target: 1, value: 235.31, unit: "m³" }, { source: 8, target: 1, value: 82.47, unit: "m³" }, { source: 9, target: 1, value: 1164.57, unit: "m²" }, { source: 10, target: 1, value: 156.32, unit: "m²" }, { source: 11, target: 1, value: 93.46, unit: "m³ & st" }, { source: 12, target: 1, value: 193.74, unit: "m²" }, { source: 13, target: 1, value: 27.61, unit: "m²" }, { source: 14, target: 2, value: 144.88, unit: "m²" }, { source: 15, target: 2, value: 450.34, unit: "m²" }, { source: 16, target: 2, value: 899.33, unit: "m²" }, { source: 17, target: 2, value: 247.33, unit: "m²" }, { source: 18, target: 2, value: 257.16, unit: "m²" }, { source: 19, target: 3, value: 67.51, unit: "m²" }, { source: 20, target: 4, value: 20.94, unit: "m³" }, { source: 21, target: 4, value: 11.27, unit: "m³" }, { source: 22, target: 4, value: 97.17, unit: "m²" }, { source: 23, target: 4, value: 48.79, unit: "m²" }, { source: 24, target: 4, value: 54.40, unit: "m²" }, { source: 25, target: 4, value: 61.84, unit: "m" }, { source: 26, target: 4, value: 11.00, unit: "st" }, { source: 27, target: 4, value: 6.00, unit: "st" }, { source: 28, target: 5, value: 1.00, unit: "Unit" }, { source: 29, target: 6, value: 1098.01, unit: "m³" }
+                ]
+            };
+            
+            const colorMap = { "source": "#111111", "salvage": "#ed1c24", "recycle": "#999999", "waste": "#dddddd", "hazard": "#444444" };
+            const svg = d3.select("#sankey-diagram").append("svg").attr("width", width).attr("height", height);
+            
+            // Failsafe Extent calculation
+            const maxExtentY = Math.max(height - 10, 10);
+            const sankey = d3.sankey().nodeWidth(20).nodePadding(12).extent([[10, 10], [width - 10, maxExtentY]]);
+            
+            const {nodes, links} = sankey(sankeyData);
+
+            const link = svg.append("g").selectAll("path").data(links).join("path").attr("class", "link")
+                .attr("d", d3.sankeyLinkHorizontal()).attr("stroke", d => colorMap[d.source.category]).attr("stroke-width", d => Math.max(1.5, d.width));
+            
+            const node = svg.append("g").selectAll("g").data(nodes).join("g").attr("class", "node");
+            node.append("rect").attr("x", d => d.x0).attr("y", d => d.y0).attr("height", d => Math.max(2, d.y1 - d.y0)).attr("width", d => d.x1 - d.x0).attr("fill", d => colorMap[d.category]);
+            node.append("text").attr("x", d => d.x0 < width / 2 ? d.x1 + 8 : d.x0 - 8).attr("y", d => (d.y1 + d.y0) / 2).attr("dy", "0.35em").attr("text-anchor", d => d.x0 < width / 2 ? "start" : "end")
+                .html(d => d.name.split(" (")[0] + (d.name.split(" (")[1] ? ` <tspan fill="#888" font-style="italic">(${d.name.split(" (")[1]}</tspan>` : ""));
+
+            const tooltip = d3.select("#tooltip");
+            link.on("mousemove", function(event, d) { tooltip.style("opacity", 1).html(`${d.source.name.split(" (")[0]} → ${d.target.name.split(" (")[0]}<br><span>${d.value} ${d.unit}</span>`).style("left", (event.pageX + 15) + "px").style("top", (event.pageY - 28) + "px"); d3.select(this).style("stroke-opacity", 0.8); })
+                .on("mouseleave", function() { tooltip.style("opacity", 0); d3.select(this).style("stroke-opacity", 0.2); });
+            node.on("mousemove", function(event, d) { tooltip.style("opacity", 1).html(`<strong>${d.name.split(" (")[0]}</strong>`).style("left", (event.pageX + 15) + "px").style("top", (event.pageY - 28) + "px"); })
+                .on("mouseleave", () => tooltip.style("opacity", 0));
+        } catch(e) { console.error("Sankey Error:", e); }
+    }
+
+    // ---------------------------------------------------------
+    // 4. ISOLATED 3D MONOLITH
     // ---------------------------------------------------------
     function initThreeJS() {
-        const container = document.getElementById('three-canvas-container');
-        const scene = new THREE.Scene();
-        
-        const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 1000);
-        // Pulled camera further back to frame the wide Left-to-Right layout
-        camera.position.set(0, 45, 80);
-        camera.lookAt(0, 10, 0);
-        
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(container.clientWidth, container.clientHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); 
-        container.appendChild(renderer.domElement);
-
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-        scene.add(ambientLight);
-        const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
-        dirLight.position.set(10, 20, 10);
-        scene.add(dirLight);
-
-        const totalCubes = 6484;
-        const countRetained = 2723;
-        const countWaste = 3721;
-        const countSalvage = 40;
-
-        const geometry = new THREE.BoxGeometry(0.85, 0.85, 0.85); 
-        const material = new THREE.MeshLambertMaterial({ color: 0xffffff });
-        const mesh = new THREE.InstancedMesh(geometry, material, totalCubes);
-        scene.add(mesh);
-
-        const states = [
-            { pos: [], col: [] }, 
-            { pos: [], col: [] }, 
-            { pos: [], col: [] }  
-        ];
-
-        const colNeutral = new THREE.Color("#aaaaaa");
-        const colBlack = new THREE.Color("#111111");
-        const colGrey = new THREE.Color("#cccccc"); 
-        const colRed = new THREE.Color("#ed1c24");
-
-        const dummy = new THREE.Object3D();
-        
-        let monolithPositions = [];
-        let i = 0;
-        let dimX = 19, dimY = 18, dimZ = 19;
-        
-        for (let y = 0; y < dimY; y++) {
-            for (let x = 0; x < dimX; x++) {
-                for (let z = 0; z < dimZ; z++) {
-                    if (i >= totalCubes) break;
-                    monolithPositions.push(new THREE.Vector3(x - dimX/2 + 0.5, y, z - dimZ/2 + 0.5));
-                    i++;
-                }
-            }
-        }
-
-        for (let j = 0; j < totalCubes; j++) {
-            // STATE 0: Monolith
-            states[0].pos.push(monolithPositions[j].clone());
-            states[0].col.push(colNeutral.clone());
-
-            if (j < countRetained) {
-                // RETAINED BLOCK (Stays fixed in center for States 1 & 2)
-                states[1].pos.push(monolithPositions[j].clone());
-                states[1].col.push(colBlack.clone());
-                states[2].pos.push(monolithPositions[j].clone());
-                states[2].col.push(colBlack.clone());
-                
-            } else if (j < countRetained + countWaste) {
-                // DEMOLISHED WASTE
-                // State 1: Explodes upwards
-                const r = 20 * Math.cbrt(Math.random()) + 10;
-                const theta = Math.random() * 2 * Math.PI;
-                const phi = Math.acos(2 * Math.random() - 1);
-                states[1].pos.push(new THREE.Vector3(
-                    r * Math.sin(phi) * Math.cos(theta),
-                    r * Math.sin(phi) * Math.sin(theta) + 25,
-                    r * Math.cos(phi)
-                ));
-                states[1].col.push(colNeutral.clone());
-
-                // State 2: Math fixed to properly stack the block on the LEFT (X = -19)
-                let wIndex = j - countRetained;
-                let wDimX = 16, wDimZ = 16;
-                let wLayer = wDimX * wDimZ;
-                let wX = (wIndex % wDimX) - wDimX/2 - 19; 
-                let wZ = Math.floor((wIndex % wLayer) / wDimX) - wDimZ/2;
-                let wY = Math.floor(wIndex / wLayer);
-                states[2].pos.push(new THREE.Vector3(wX, wY, wZ));
-                states[2].col.push(colGrey.clone());
-                
-            } else {
-                // SALVAGED MATERIAL
-                // State 1: Explodes upwards
-                const r = 20 * Math.cbrt(Math.random()) + 10;
-                const theta = Math.random() * 2 * Math.PI;
-                const phi = Math.acos(2 * Math.random() - 1);
-                states[1].pos.push(new THREE.Vector3(
-                    r * Math.sin(phi) * Math.cos(theta),
-                    r * Math.sin(phi) * Math.sin(theta) + 25,
-                    r * Math.cos(phi)
-                ));
-                states[1].col.push(colNeutral.clone());
-
-                // State 2: Math fixed to properly stack the block on the RIGHT (X = +15)
-                let sIndex = j - (countRetained + countWaste);
-                let sDimX = 4, sDimZ = 5;
-                let sLayer = sDimX * sDimZ;
-                let sX = (sIndex % sDimX) - sDimX/2 + 15;
-                let sZ = Math.floor((sIndex % sLayer) / sDimX) - sDimZ/2;
-                let sY = Math.floor(sIndex / sLayer); 
-                states[2].pos.push(new THREE.Vector3(sX, sY, sZ));
-                states[2].col.push(colRed.clone());
-            }
-        }
-
-        const currentPos = [];
-        const currentCol = [];
-        for (let i = 0; i < totalCubes; i++) {
-            currentPos.push(states[0].pos[i].clone());
-            currentCol.push(states[0].col[i].clone());
+        try {
+            const container = document.getElementById('three-canvas-container');
+            if(!container) return;
+            const scene = new THREE.Scene();
             
-            dummy.position.copy(currentPos[i]);
-            dummy.updateMatrix();
-            mesh.setMatrixAt(i, dummy.matrix);
-            mesh.setColorAt(i, currentCol[i]);
-        }
-        mesh.instanceMatrix.needsUpdate = true;
-        mesh.instanceColor.needsUpdate = true;
+            const width = container.clientWidth || 1000;
+            const height = container.clientHeight || 800;
+            
+            const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 1000);
+            camera.position.set(0, 45, 80);
+            camera.lookAt(0, 10, 0);
+            
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(width, height);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); 
+            container.appendChild(renderer.domElement);
 
-        let activeState = 0;
-        const steps = document.querySelectorAll('.three-step');
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    steps.forEach(s => s.classList.remove('is-active'));
-                    entry.target.classList.add('is-active');
-                    activeState = parseInt(entry.target.getAttribute('data-three-state'));
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
+            dirLight.position.set(10, 20, 10);
+            scene.add(dirLight);
+
+            const totalCubes = 6484;
+            const countRetained = 2723;
+            const countWaste = 3721;
+            const countSalvage = 40;
+
+            const geometry = new THREE.BoxGeometry(0.85, 0.85, 0.85); 
+            const material = new THREE.MeshLambertMaterial({ color: 0xffffff });
+            const mesh = new THREE.InstancedMesh(geometry, material, totalCubes);
+            scene.add(mesh);
+
+            const states = [{ pos: [], col: [] }, { pos: [], col: [] }, { pos: [], col: [] }];
+
+            const colNeutral = new THREE.Color("#aaaaaa");
+            const colBlack = new THREE.Color("#111111");
+            const colGrey = new THREE.Color("#cccccc"); 
+            const colRed = new THREE.Color("#ed1c24");
+
+            const dummy = new THREE.Object3D();
+            
+            let monolithPositions = [];
+            let i = 0;
+            let dimX = 19, dimY = 18, dimZ = 19;
+            
+            for (let y = 0; y < dimY; y++) {
+                for (let x = 0; x < dimX; x++) {
+                    for (let z = 0; z < dimZ; z++) {
+                        if (i >= totalCubes) break;
+                        monolithPositions.push(new THREE.Vector3(x - dimX/2 + 0.5, y, z - dimZ/2 + 0.5));
+                        i++;
+                    }
                 }
-            });
-        }, { threshold: 0.5 });
-        steps.forEach(step => observer.observe(step));
-
-        let isDragging = false;
-        let previousMousePosition = { x: 0, y: 0 };
-        container.addEventListener('mousedown', (e) => { isDragging = true; });
-        container.addEventListener('mousemove', (e) => {
-            if (isDragging) {
-                const deltaMove = { x: e.offsetX - previousMousePosition.x, y: e.offsetY - previousMousePosition.y };
-                scene.rotation.y += deltaMove.x * 0.01;
-                scene.rotation.x += deltaMove.y * 0.01;
             }
-            previousMousePosition = { x: e.offsetX, y: e.offsetY };
-        });
-        window.addEventListener('mouseup', () => { isDragging = false; });
 
-        function animate() {
-            requestAnimationFrame(animate);
-            let needsUpdate = false;
+            for (let j = 0; j < totalCubes; j++) {
+                states[0].pos.push(monolithPositions[j].clone());
+                states[0].col.push(colNeutral.clone());
 
-            for (let i = 0; i < totalCubes; i++) {
-                currentPos[i].lerp(states[activeState].pos[i], 0.03); 
-                dummy.position.copy(currentPos[i]);
+                if (j < countRetained) {
+                    states[1].pos.push(monolithPositions[j].clone());
+                    states[1].col.push(colBlack.clone());
+                    states[2].pos.push(monolithPositions[j].clone());
+                    states[2].col.push(colBlack.clone());
+                    
+                } else if (j < countRetained + countWaste) {
+                    const r = 20 * Math.cbrt(Math.random()) + 10;
+                    const theta = Math.random() * 2 * Math.PI;
+                    const phi = Math.acos(2 * Math.random() - 1);
+                    states[1].pos.push(new THREE.Vector3(r * Math.sin(phi) * Math.cos(theta), r * Math.sin(phi) * Math.sin(theta) + 25, r * Math.cos(phi)));
+                    states[1].col.push(colNeutral.clone());
+
+                    let wIndex = j - countRetained;
+                    let wDimX = 16, wDimZ = 16;
+                    let wLayer = wDimX * wDimZ;
+                    let wX = (wIndex % wDimX) - wDimX/2 - 19; 
+                    let wZ = Math.floor((wIndex % wLayer) / wDimX) - wDimZ/2;
+                    let wY = Math.floor(wIndex / wLayer);
+                    states[2].pos.push(new THREE.Vector3(wX, wY, wZ));
+                    states[2].col.push(colGrey.clone());
+                    
+                } else {
+                    const r = 20 * Math.cbrt(Math.random()) + 10;
+                    const theta = Math.random() * 2 * Math.PI;
+                    const phi = Math.acos(2 * Math.random() - 1);
+                    states[1].pos.push(new THREE.Vector3(r * Math.sin(phi) * Math.cos(theta), r * Math.sin(phi) * Math.sin(theta) + 25, r * Math.cos(phi)));
+                    states[1].col.push(colNeutral.clone());
+
+                    let sIndex = j - (countRetained + countWaste);
+                    let sDimX = 4, sDimZ = 5;
+                    let sLayer = sDimX * sDimZ;
+                    let sX = (sIndex % sDimX) - sDimX/2 + 15;
+                    let sZ = Math.floor((sIndex % sLayer) / sDimX) - sDimZ/2;
+                    let sY = Math.floor(sIndex / sLayer); 
+                    states[2].pos.push(new THREE.Vector3(sX, sY, sZ));
+                    states[2].col.push(colRed.clone());
+                }
+            }
+
+            const currentPos = [];
+            const currentCol = [];
+            for (let k = 0; k < totalCubes; k++) {
+                currentPos.push(states[0].pos[k].clone());
+                currentCol.push(states[0].col[k].clone());
+                dummy.position.copy(currentPos[k]);
                 dummy.updateMatrix();
-                mesh.setMatrixAt(i, dummy.matrix);
-                
-                currentCol[i].lerp(states[activeState].col[i], 0.05);
-                mesh.setColorAt(i, currentCol[i]);
-                
-                needsUpdate = true;
+                mesh.setMatrixAt(k, dummy.matrix);
+                mesh.setColorAt(k, currentCol[k]);
             }
+            mesh.instanceMatrix.needsUpdate = true;
+            mesh.instanceColor.needsUpdate = true;
 
-            if (needsUpdate) {
-                mesh.instanceMatrix.needsUpdate = true;
-                mesh.instanceColor.needsUpdate = true;
+            let activeState = 0;
+            const steps = document.querySelectorAll('.three-step');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        steps.forEach(s => s.classList.remove('is-active'));
+                        entry.target.classList.add('is-active');
+                        activeState = parseInt(entry.target.getAttribute('data-three-state'));
+                    }
+                });
+            }, { threshold: 0.5 });
+            steps.forEach(step => observer.observe(step));
+
+            let isDragging = false;
+            let previousMousePosition = { x: 0, y: 0 };
+            container.addEventListener('mousedown', (e) => { isDragging = true; });
+            container.addEventListener('mousemove', (e) => {
+                if (isDragging) {
+                    scene.rotation.y += (e.offsetX - previousMousePosition.x) * 0.01;
+                    scene.rotation.x += (e.offsetY - previousMousePosition.y) * 0.01;
+                }
+                previousMousePosition = { x: e.offsetX, y: e.offsetY };
+            });
+            window.addEventListener('mouseup', () => { isDragging = false; });
+
+            function animate() {
+                requestAnimationFrame(animate);
+                let needsUpdate = false;
+                for (let n = 0; n < totalCubes; n++) {
+                    currentPos[n].lerp(states[activeState].pos[n], 0.03); 
+                    dummy.position.copy(currentPos[n]);
+                    dummy.updateMatrix();
+                    mesh.setMatrixAt(n, dummy.matrix);
+                    
+                    currentCol[n].lerp(states[activeState].col[n], 0.05);
+                    mesh.setColorAt(n, currentCol[n]);
+                    needsUpdate = true;
+                }
+                if (needsUpdate) {
+                    mesh.instanceMatrix.needsUpdate = true;
+                    mesh.instanceColor.needsUpdate = true;
+                }
+                renderer.render(scene, camera);
             }
+            animate();
 
-            renderer.render(scene, camera);
-        }
-        animate();
-
-        window.addEventListener('resize', () => {
-            camera.aspect = container.clientWidth / container.clientHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(container.clientWidth, container.clientHeight);
-        });
+            window.addEventListener('resize', () => {
+                const w = container.clientWidth || 1000;
+                const h = container.clientHeight || 800;
+                camera.aspect = w / h;
+                camera.updateProjectionMatrix();
+                renderer.setSize(w, h);
+            });
+        } catch(e) { console.error("ThreeJS Error:", e); }
     }
 
-    // Launch all scripts
-    window.onload = () => {
+    // ---------------------------------------------------------
+    // 5. EXECUTION PROTOCOL (Removed window.onload dependencies)
+    // ---------------------------------------------------------
+    // Instantly trigger the scripts since DOM elements sit above them
+    initSVG();
+    drawTreemap();
+    drawSankey();
+    initThreeJS();
+
+    // Safe Resize Handler
+    window.addEventListener('resize', () => {
         drawTreemap();
         drawSankey();
-        initThreeJS();
-    };
-    
-    window.onresize = () => {
-        drawTreemap();
-        drawSankey();
-    };
+    });
 </script>
 
 </body>
