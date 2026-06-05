@@ -1,3 +1,4 @@
+HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,7 +27,6 @@
             color: var(--text-main); 
         }
         
-        /* 1. SCROLLYTELLING SECTION (SVG) */
         .scrolly-container { display: flex; align-items: flex-start; background-color: var(--bg-animation); }
         .text-overlay { width: 25%; padding: 0 5%; position: relative; z-index: 10; background-color: var(--bg-animation); }
         
@@ -49,12 +49,10 @@
         #svg-wrapper[data-current-state="step-2"] svg.blueprint g[id^="state_2"] { opacity: 1; }
         #svg-wrapper[data-current-state="step-3"] svg.blueprint g[id^="state_3"] { opacity: 1; }
 
-        /* 2. DATA SECTION */
         .data-section { padding: 80px 5vw; background-color: var(--bg-data); border-top: 1px solid var(--border); }
         .data-section h2 { font-size: 2rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px; }
         .data-section p.subtitle { color: var(--text-muted); margin-bottom: 60px; font-size: 1.1rem; max-width: 800px;}
 
-        /* Treemap & Sankey Styling */
         #treemap-diagram { width: 100%; height: 500px; margin-bottom: 80px; position: relative; }
         .treemap-node { position: absolute; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: white; overflow: hidden; outline: 1px solid #fff; transition: background 0.3s; cursor: default; }
         .treemap-node:hover { filter: brightness(1.1); }
@@ -76,7 +74,6 @@
         }
         .d3-tooltip span { color: var(--accent); font-weight: bold; font-family: monospace; font-size: 14px;}
 
-        /* Table Styling */
         table { width: 100%; border-collapse: collapse; font-size: 1.05rem; }
         th, td { padding: 12px 20px; text-align: left; border-bottom: 1px solid var(--border); }
         th { background-color: #f9f9f9; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
@@ -86,7 +83,6 @@
         .highlight-val { font-weight: bold; font-family: monospace; font-size: 1.1rem; color: var(--accent); }
         i { color: #888; font-size: 0.9em; font-weight: normal; }
 
-        /* 3. 3D PARTICLE MONOLITH SECTION */
         .three-section {
             border-top: 1px solid var(--border);
         }
@@ -297,7 +293,7 @@
 
     const sankeyData = {
         nodes: [
-            { name: "TVR7 Pre-Demolition (TVR7 Site)", category: "source" }, { name: "Bulk Recycling (Puinrecyclage)", category: "recycle" }, { name: "Standard Landfill (Stortplaats)", category: "waste" }, { name: "Hazardous Disposal (Gevaarlijk Afval)", category: "hazard" }, { name: "Secondary Market (Tweedehandsmarkt)", category: "salvage" }, { name: "Artwork Relocation (Kunstbehoud)", category: "salvage" }, { name: "Soil Reuse (Grondhergebruik)", category: "recycle" }, { name: "Masonry Walls (Metselwerk Muren)", category: "recycle" }, { name: "Concrete Walls (Beton Muren)", category: "recycle" }, { name: "Concrete Floors (Betonvloeren)", category: "recycle" }, { name: "Concrete Roof (Betondak)", category: "recycle" }, { name: "Concrete Structure (Structuurelementen)", category: "recycle"}, { name: "Floor Screed (Dekvloer)", category: "recycle" }, { name: "Ext. Pavement (Verhardingen)", category: "recycle" }, { name: "Pitched Roof (Hellend Dak)", category: "waste" }, { name: "Flat Roof (Plat Dak)", category: "waste" }, { name: "Exterior Joinery (Buitenschrijnwerk)", category: "waste" }, { name: "Sun Screens (Screens)", category: "waste" }, { name: "Plasterwork (Pleisterwerk)", category: "waste" }, { name: "Asbestos Slates (Asbest Leien)", category: "hazard" }, { name: "Facade Bricks (Gevelsteen)", category: "salvage" }, { name: "Interior Bricks (Binnenmuursteen)", category: "salvage" }, { name: "Blue Stone Floors (Blauwe Steen Vloer)", category: "salvage" }, { name: "Blue Stone Paving (Blauwe Steen Buiten)", category: "salvage" }, { name: "Wood Wainscoting (Lambrisering)", category: "salvage" }, { name: "Sills (Tabletten)", category: "salvage" }, { name: "Wooden Handrails (Handgrepen)", category: "salvage" }, { name: "Original Signage (Signalisatie)", category: "salvage" }, { name: "Statue 'Vrouw van Lot' (Kunstwerk)", category: "salvage" }, { name: "Excavated Soil (Uitgegraven Bodem)", category: "recycle" }
+            { name: "TVR7 Pre-Demolition (TVR7 Site)", category: "source" }, { name: "Bulk Recycling (Puinrecyclage)", category: "recycle" }, { name: "Standard Landfill (Stortplaats)", category: "waste" }, { name: "Hazardous Disposal (Gevaarlijk Afval)", category: "hazard" }, { name: "Secondary Market (Tweedehandsmarkt)", category: "salvage" }, { name: "Artwork Relocation (Kunstbehoud)", category: "salvage" }, { name: "Soil Reuse (Grondhergebruik)", category: "recycle" }, { name: "Mason Walls (Metselwerk Muren)", category: "recycle" }, { name: "Concrete Walls (Beton Muren)", category: "recycle" }, { name: "Concrete Floors (Betonvloeren)", category: "recycle" }, { name: "Concrete Roof (Betondak)", category: "recycle" }, { name: "Concrete Structure (Structuurelementen)", category: "recycle"}, { name: "Floor Screed (Dekvloer)", category: "recycle" }, { name: "Ext. Pavement (Verhardingen)", category: "recycle" }, { name: "Pitched Roof (Hellend Dak)", category: "waste" }, { name: "Flat Roof (Plat Dak)", category: "waste" }, { name: "Exterior Joinery (Buitenschrijnwerk)", category: "waste" }, { name: "Sun Screens (Screens)", category: "waste" }, { name: "Plasterwork (Pleisterwerk)", category: "waste" }, { name: "Asbestos Slates (Asbest Leien)", category: "hazard" }, { name: "Facade Bricks (Gevelsteen)", category: "salvage" }, { name: "Interior Bricks (Binnenmuursteen)", category: "salvage" }, { name: "Blue Stone Floors (Blauwe Steen Vloer)", category: "salvage" }, { name: "Blue Stone Paving (Blauwe Steen Buiten)", category: "salvage" }, { name: "Wood Wainscoting (Lambrisering)", category: "salvage" }, { name: "Sills (Tabletten)", category: "salvage" }, { name: "Wooden Handrails (Handgrepen)", category: "salvage" }, { name: "Original Signage (Signalisatie)", category: "salvage" }, { name: "Statue 'Vrouw van Lot' (Kunstwerk)", category: "salvage" }, { name: "Excavated Soil (Uitgegraven Bodem)", category: "recycle" }
         ],
         links: [
             { source: 0, target: 7, value: 235.31, unit: "m³" }, { source: 0, target: 8, value: 82.47, unit: "m³" }, { source: 0, target: 9, value: 1164.57, unit: "m²" }, { source: 0, target: 10, value: 156.32, unit: "m²" }, { source: 0, target: 11, value: 93.46, unit: "m³ & st" }, { source: 0, target: 12, value: 193.74, unit: "m²" }, { source: 0, target: 13, value: 27.61, unit: "m²" }, { source: 0, target: 14, value: 144.88, unit: "m²" }, { source: 0, target: 15, value: 450.34, unit: "m²" }, { source: 0, target: 16, value: 899.33, unit: "m²" }, { source: 0, target: 17, value: 247.33, unit: "m²" }, { source: 0, target: 18, value: 257.16, unit: "m²" }, { source: 0, target: 19, value: 67.51, unit: "m²" }, { source: 0, target: 20, value: 20.94, unit: "m³" }, { source: 0, target: 21, value: 11.27, unit: "m³" }, { source: 0, target: 22, value: 97.17, unit: "m²" }, { source: 0, target: 23, value: 48.79, unit: "m²" }, { source: 0, target: 24, value: 54.40, unit: "m²" }, { source: 0, target: 25, value: 61.84, unit: "m" }, { source: 0, target: 26, value: 11.00, unit: "st" }, { source: 0, target: 27, value: 6.00, unit: "st" }, { source: 0, target: 28, value: 1.00, unit: "Unit" }, { source: 0, target: 29, value: 1098.01, unit: "m³" }, { source: 7, target: 1, value: 235.31, unit: "m³" }, { source: 8, target: 1, value: 82.47, unit: "m³" }, { source: 9, target: 1, value: 1164.57, unit: "m²" }, { source: 10, target: 1, value: 156.32, unit: "m²" }, { source: 11, target: 1, value: 93.46, unit: "m³ & st" }, { source: 12, target: 1, value: 193.74, unit: "m²" }, { source: 13, target: 1, value: 27.61, unit: "m²" }, { source: 14, target: 2, value: 144.88, unit: "m²" }, { source: 15, target: 2, value: 450.34, unit: "m²" }, { source: 16, target: 2, value: 899.33, unit: "m²" }, { source: 17, target: 2, value: 247.33, unit: "m²" }, { source: 18, target: 2, value: 257.16, unit: "m²" }, { source: 19, target: 3, value: 67.51, unit: "m²" }, { source: 20, target: 4, value: 20.94, unit: "m³" }, { source: 21, target: 4, value: 11.27, unit: "m³" }, { source: 22, target: 4, value: 97.17, unit: "m²" }, { source: 23, target: 4, value: 48.79, unit: "m²" }, { source: 24, target: 4, value: 54.40, unit: "m²" }, { source: 25, target: 4, value: 61.84, unit: "m" }, { source: 26, target: 4, value: 11.00, unit: "st" }, { source: 27, target: 4, value: 6.00, unit: "st" }, { source: 28, target: 5, value: 1.00, unit: "Unit" }, { source: 29, target: 6, value: 1098.01, unit: "m³" }
@@ -384,16 +380,13 @@
         }
 
         for (let j = 0; j < totalCubes; j++) {
-            // State 0: Monolith
             states[0].pos.push(monolithPositions[j].clone());
             states[0].col.push(colNeutral.clone());
 
             if (j < countRetained) {
-                // RETAINED VOLUME: Stays in place, turns Black in State 1
                 states[1].pos.push(monolithPositions[j].clone());
                 states[1].col.push(colBlack.clone());
                 
-                // State 2: Ordered Black Core
                 let dimR = 14;
                 let rX = (j % dimR) - dimR/2 + 0.5;
                 let rY = Math.floor((j / dimR) % dimR) + lift;
@@ -402,8 +395,7 @@
                 states[2].col.push(colBlack.clone());
                 
             } else if (j < countRetained + countWaste) {
-                // WASTE VOLUME: Explodes in State 1 (Radius increased by ~30%)
-                const r = 30 * Math.cbrt(Math.random()) + 5; 
+                const r = 25 * Math.cbrt(Math.random()) + 8; 
                 const theta = Math.random() * 2 * Math.PI;
                 const phi = Math.acos(2 * Math.random() - 1);
                 states[1].pos.push(new THREE.Vector3(
@@ -413,19 +405,17 @@
                 ));
                 states[1].col.push(colNeutral.clone());
 
-                // State 2: Stacks Left (Moved further left to -18)
                 let wIndex = j - countRetained;
                 let wDimX = 16, wDimZ = 16;
                 let wLayer = wDimX * wDimZ;
-                let wX = (wIndex % wDimX) - wDimX/2 - 18; 
+                let wX = (wIndex % wDimX) - wDimX/2 - 21; 
                 let wZ = Math.floor((wIndex % wLayer) / wDimX) - wDimZ/2;
                 let wY = Math.floor(wIndex / wLayer) + lift;
                 states[2].pos.push(new THREE.Vector3(wX, wY, wZ));
                 states[2].col.push(colGrey.clone());
                 
             } else {
-                // SALVAGE VOLUME: Explodes in State 1 (Radius increased by ~30%)
-                const r = 30 * Math.cbrt(Math.random()) + 5; 
+                const r = 25 * Math.cbrt(Math.random()) + 8; 
                 const theta = Math.random() * 2 * Math.PI;
                 const phi = Math.acos(2 * Math.random() - 1);
                 states[1].pos.push(new THREE.Vector3(
@@ -435,11 +425,10 @@
                 ));
                 states[1].col.push(colNeutral.clone());
 
-                // State 2: Stacks Right (Moved further right to +18)
                 let sIndex = j - (countRetained + countWaste);
                 let sDimX = 4, sDimZ = 5;
                 let sLayer = sDimX * sDimZ;
-                let sX = (sIndex % sDimX) - sDimX/2 + 18; 
+                let sX = (sIndex % sDimX) - sDimX/2 + 15; 
                 let sZ = Math.floor((sIndex % sLayer) / sDimX) - sDimZ/2;
                 let sY = Math.floor(sIndex / sLayer) + lift;
                 states[2].pos.push(new THREE.Vector3(sX, sY, sZ));
