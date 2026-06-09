@@ -1,10 +1,13 @@
-HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TVR7 | Demolition & Reuse</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://unpkg.com/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
@@ -22,9 +25,19 @@ HTML
         
         body, html { 
             margin: 0; padding: 0; 
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+            font-family: 'Space Grotesk', sans-serif; 
             background: var(--bg-animation); 
             color: var(--text-main); 
+        }
+
+        #loader {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: var(--bg-animation);
+            z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 2rem; font-weight: bold; letter-spacing: 2px;
+            transition: opacity 0.5s ease-out;
         }
         
         .scrolly-container { display: flex; align-items: flex-start; background-color: var(--bg-animation); }
@@ -34,6 +47,8 @@ HTML
             width: 75%; height: 100vh; position: sticky; top: 0; 
             display: flex; justify-content: center; align-items: center; 
             background-color: var(--bg-animation);
+            z-index: 20;
+            box-shadow: -10px 0 40px rgba(0,0,0,0.08);
         }
         
         .step { height: 100vh; display: flex; flex-direction: column; justify-content: center; opacity: 0.25; transition: opacity 0.6s ease; }
@@ -63,23 +78,36 @@ HTML
         #sankey-diagram { width: 100%; height: 900px; margin-bottom: 80px; overflow: visible; }
         .node rect { cursor: pointer; transition: opacity 0.2s; }
         .node rect:hover { opacity: 0.8; }
-        .node text { font-family: sans-serif; font-size: 11px; pointer-events: none; font-weight: 500; }
+        .node text { font-family: 'Space Grotesk', sans-serif; font-size: 11px; pointer-events: none; font-weight: 500; }
         .link { fill: none; stroke-opacity: 0.2; transition: stroke-opacity 0.2s; }
         .link:hover { stroke-opacity: 0.7; }
 
         .d3-tooltip {
-            position: absolute; text-align: left; padding: 12px; font-size: 13px;
-            background: #111; color: #fff; border-radius: 4px; pointer-events: none;
-            opacity: 0; transition: opacity 0.2s; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: absolute; text-align: left; padding: 14px; font-size: 13px;
+            background: rgba(17, 17, 17, 0.85); color: #fff; border-radius: 6px; 
+            pointer-events: none; opacity: 0; transition: opacity 0.2s; z-index: 100;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
         }
         .d3-tooltip span { color: var(--accent); font-weight: bold; font-family: monospace; font-size: 14px;}
 
         table { width: 100%; border-collapse: collapse; font-size: 1.05rem; }
-        th, td { padding: 12px 20px; text-align: left; border-bottom: 1px solid var(--border); }
+        th, td { padding: 12px 20px; text-align: left; border-bottom: 1px solid var(--border); position: relative; }
         th { background-color: #f9f9f9; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
-        tr:hover td { background-color: #fafafa; }
+        
+        td { transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.2s, box-shadow 0.2s; background-color: transparent; }
+        td:hover {
+            transform: scale(1.15);
+            background-color: #ffffff;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            z-index: 50;
+            border-radius: 6px;
+        }
+
         .category-header { background-color: #111111; color: #ffffff; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
-        .category-header td { padding: 18px 20px; }
+        .category-header td { padding: 18px 20px; pointer-events: none; }
         .highlight-val { font-weight: bold; font-family: monospace; font-size: 1.1rem; color: var(--accent); }
         i { color: #888; font-size: 0.9em; font-weight: normal; }
 
@@ -114,6 +142,8 @@ HTML
 </head>
 <body>
 
+<div id="loader">INITIALIZING...</div>
+
 <div id="tooltip" class="d3-tooltip"></div>
 
 <div class="scrolly-container">
@@ -138,7 +168,7 @@ HTML
         </div>
     </div>
     <div class="graphic-container" id="svg-wrapper" data-current-state="step-1">
-        </div>
+    </div>
 </div>
 
 <section class="data-section">
@@ -333,14 +363,36 @@ HTML
         
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(container.clientWidth, container.clientHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); 
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         container.appendChild(renderer.domElement);
 
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
         scene.add(ambientLight);
-        const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
-        dirLight.position.set(10, 20, 10);
+        
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        dirLight.position.set(20, 40, 20);
+        dirLight.castShadow = true;
+        dirLight.shadow.mapSize.width = 2048;
+        dirLight.shadow.mapSize.height = 2048;
+        dirLight.shadow.camera.near = 0.5;
+        dirLight.shadow.camera.far = 150;
+        dirLight.shadow.camera.left = -50;
+        dirLight.shadow.camera.right = 50;
+        dirLight.shadow.camera.top = 50;
+        dirLight.shadow.camera.bottom = -50;
+        dirLight.shadow.bias = -0.0001;
         scene.add(dirLight);
+
+        const planeGeo = new THREE.PlaneGeometry(300, 300);
+        const planeMat = new THREE.ShadowMaterial({ opacity: 0.15 });
+        const plane = new THREE.Mesh(planeGeo, planeMat);
+        plane.rotation.x = -Math.PI / 2;
+        plane.position.y = -0.5;
+        plane.receiveShadow = true;
+        scene.add(plane);
 
         const totalCubes = 6484;
         const countRetained = 2723;
@@ -348,8 +400,10 @@ HTML
         const countSalvage = 40;
 
         const geometry = new THREE.BoxGeometry(0.85, 0.85, 0.85); 
-        const material = new THREE.MeshLambertMaterial({ color: 0xffffff });
+        const material = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4, metalness: 0.1 });
         const mesh = new THREE.InstancedMesh(geometry, material, totalCubes);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
         scene.add(mesh);
 
         const states = [
@@ -512,6 +566,14 @@ HTML
         drawTreemap();
         drawSankey();
         initThreeJS();
+        
+        setTimeout(() => {
+            const loader = document.getElementById('loader');
+            if (loader) {
+                loader.style.opacity = '0';
+                setTimeout(() => loader.remove(), 500);
+            }
+        }, 1200);
     };
     
     window.onresize = () => {
