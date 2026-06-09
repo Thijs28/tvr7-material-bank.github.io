@@ -21,11 +21,12 @@
             --text-muted: #555555;
             --accent: #ed1c24;       
             --border: #dddddd;
+            --font-main: 'Space Grotesk', sans-serif;
         }
         
         body, html { 
             margin: 0; padding: 0; 
-            font-family: 'Space Grotesk', sans-serif; 
+            font-family: var(--font-main); 
             background: var(--bg-animation); 
             color: var(--text-main); 
         }
@@ -33,22 +34,29 @@
         #loader {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            background-color: var(--bg-animation);
+            background: var(--bg-animation);
             z-index: 9999;
             display: flex; justify-content: center; align-items: center;
-            font-size: 2rem; font-weight: bold; letter-spacing: 2px;
-            transition: opacity 0.5s ease-out;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
         }
+        .spinner {
+            width: 40px; height: 40px;
+            border: 3px solid rgba(0,0,0,0.1);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
         
         .scrolly-container { display: flex; align-items: flex-start; background-color: var(--bg-animation); }
-        .text-overlay { width: 25%; padding: 0 5%; position: relative; z-index: 10; background-color: var(--bg-animation); }
+        .text-overlay { width: 25%; padding: 0 5%; position: relative; z-index: 10; background-color: transparent; }
         
         .graphic-container { 
             width: 75%; height: 100vh; position: sticky; top: 0; 
             display: flex; justify-content: center; align-items: center; 
             background-color: var(--bg-animation);
-            z-index: 20;
-            box-shadow: -10px 0 40px rgba(0,0,0,0.08);
+            box-shadow: -10px 0 40px rgba(0,0,0,0.06);
+            z-index: 5;
         }
         
         .step { height: 100vh; display: flex; flex-direction: column; justify-content: center; opacity: 0.25; transition: opacity 0.6s ease; }
@@ -64,85 +72,69 @@
         #svg-wrapper[data-current-state="step-2"] svg.blueprint g[id^="state_2"] { opacity: 1; }
         #svg-wrapper[data-current-state="step-3"] svg.blueprint g[id^="state_3"] { opacity: 1; }
 
-        .data-section { padding: 80px 5vw; background-color: var(--bg-data); border-top: 1px solid var(--border); }
+        .data-section { padding: 80px 5vw; background-color: var(--bg-data); position: relative; z-index: 10; }
         .data-section h2 { font-size: 2rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px; }
         .data-section p.subtitle { color: var(--text-muted); margin-bottom: 60px; font-size: 1.1rem; max-width: 800px;}
 
         #treemap-diagram { width: 100%; height: 500px; margin-bottom: 80px; position: relative; }
-        .treemap-node { position: absolute; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: white; overflow: hidden; outline: 1px solid #fff; transition: background 0.3s; cursor: default; }
-        .treemap-node:hover { filter: brightness(1.1); }
+        .treemap-node { 
+            position: absolute; display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            text-align: center; color: white; overflow: hidden; outline: 1px solid #fff; 
+            transition: background 0.3s, transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1); cursor: default; 
+        }
+        .treemap-node:hover { filter: brightness(1.1); transform: scale(1.02); z-index: 10; }
         .treemap-title { font-weight: bold; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; }
         .treemap-value { font-family: monospace; font-size: 1.1rem; margin-top: 5px; }
         .treemap-dutch { font-style: italic; font-size: 0.9rem; opacity: 0.8; margin-top: 2px; }
 
         #sankey-diagram { width: 100%; height: 900px; margin-bottom: 80px; overflow: visible; }
-        .node rect { cursor: pointer; transition: opacity 0.2s; }
-        .node rect:hover { opacity: 0.8; }
-        .node text { font-family: 'Space Grotesk', sans-serif; font-size: 11px; pointer-events: none; font-weight: 500; }
-        .link { fill: none; stroke-opacity: 0.2; transition: stroke-opacity 0.2s; }
+        .node rect { cursor: pointer; transition: opacity 0.2s, transform 0.2s ease; }
+        .node rect:hover { opacity: 0.8; transform: scale(1.03); }
+        .node text { font-family: var(--font-main); font-size: 11px; pointer-events: none; font-weight: 500; }
+        .link { fill: none; stroke-opacity: 0.2; transition: stroke-opacity 0.2s, stroke-width 0.2s ease; }
         .link:hover { stroke-opacity: 0.7; }
 
         .d3-tooltip {
-            position: absolute; text-align: left; padding: 14px; font-size: 13px;
-            background: rgba(17, 17, 17, 0.85); color: #fff; border-radius: 6px; 
-            pointer-events: none; opacity: 0; transition: opacity 0.2s; z-index: 100;
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            position: absolute; text-align: left; padding: 12px; font-size: 13px;
+            background: rgba(17, 17, 17, 0.85); color: #fff; border-radius: 6px; pointer-events: none;
+            opacity: 0; transition: opacity 0.2s; z-index: 100; box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            backdrop-filter: blur(6px); border: 1px solid rgba(255,255,255,0.15);
         }
         .d3-tooltip span { color: var(--accent); font-weight: bold; font-family: monospace; font-size: 14px;}
 
-        table { width: 100%; border-collapse: collapse; font-size: 1.05rem; }
-        th, td { padding: 12px 20px; text-align: left; border-bottom: 1px solid var(--border); position: relative; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 1.05rem; }
+        th, td { padding: 16px 20px; text-align: left; border-bottom: 1px solid var(--border); transition: background-color 0.3s; }
         th { background-color: #f9f9f9; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
         
-        td { transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.2s, box-shadow 0.2s; background-color: transparent; }
-        td:hover {
-            transform: scale(1.15);
-            background-color: #ffffff;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-            z-index: 50;
-            border-radius: 6px;
+        tbody tr { transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease; position: relative; background-color: var(--bg-data); }
+        tbody tr:not(.category-header):hover {
+            transform: scale(1.015);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+            z-index: 10;
         }
+        tbody tr:not(.category-header):hover td { border-bottom-color: transparent; }
 
         .category-header { background-color: #111111; color: #ffffff; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
-        .category-header td { padding: 18px 20px; pointer-events: none; }
+        .category-header td { padding: 18px 20px; border-bottom: none; }
+        .category-header:hover { transform: none; box-shadow: none; z-index: 1; }
         .highlight-val { font-weight: bold; font-family: monospace; font-size: 1.1rem; color: var(--accent); }
         i { color: #888; font-size: 0.9em; font-weight: normal; }
 
-        .three-section {
-            border-top: 1px solid var(--border);
-        }
+        .three-section { border-top: 1px solid var(--border); }
         #three-canvas-container {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            cursor: grab;
-            overflow: hidden; 
+            width: 100%; height: 100%; position: absolute; top: 0; left: 0; cursor: grab; overflow: hidden; 
         }
-        #three-canvas-container:active {
-            cursor: grabbing;
-        }
+        #three-canvas-container:active { cursor: grabbing; }
         .instruction-tag {
-            position: absolute;
-            bottom: 30px;
-            right: 30px;
-            background: rgba(0,0,0,0.7);
-            color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            pointer-events: none;
-            opacity: 0.5;
+            position: absolute; bottom: 30px; right: 30px; background: rgba(0,0,0,0.7); color: white;
+            padding: 8px 15px; border-radius: 20px; font-size: 0.85rem; pointer-events: none; opacity: 0.5;
+            backdrop-filter: blur(4px);
         }
     </style>
 </head>
 <body>
 
-<div id="loader">INITIALIZING...</div>
+<div id="loader"><div class="spinner"></div></div>
 
 <div id="tooltip" class="d3-tooltip"></div>
 
@@ -168,7 +160,7 @@
         </div>
     </div>
     <div class="graphic-container" id="svg-wrapper" data-current-state="step-1">
-    </div>
+        </div>
 </div>
 
 <section class="data-section">
@@ -261,6 +253,15 @@
 </div>
 
 <script>
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            const loader = document.getElementById('loader');
+            loader.style.opacity = '0';
+            loader.style.visibility = 'hidden';
+            setTimeout(() => loader.remove(), 800);
+        }, 600);
+    });
+
     fetch('State1-3.txt')
         .then(response => { if (!response.ok) throw new Error(); return response.text(); })
         .then(svgCode => {
@@ -280,7 +281,7 @@
                 if (entry.isIntersecting) {
                     steps.forEach(s => s.classList.remove('is-active'));
                     entry.target.classList.add('is-active');
-                    svgWrapper.setAttribute('data-current-state', entry.target.getAttribute('data-state'));
+                    if(svgWrapper) svgWrapper.setAttribute('data-current-state', entry.target.getAttribute('data-state'));
                 }
             });
         }, { threshold: 0.5 });
@@ -363,8 +364,7 @@
         
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(container.clientWidth, container.clientHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); 
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         container.appendChild(renderer.domElement);
@@ -372,27 +372,23 @@
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
         scene.add(ambientLight);
         
-        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        dirLight.position.set(20, 40, 20);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.7);
+        dirLight.position.set(40, 60, 40);
         dirLight.castShadow = true;
-        dirLight.shadow.mapSize.width = 2048;
-        dirLight.shadow.mapSize.height = 2048;
-        dirLight.shadow.camera.near = 0.5;
-        dirLight.shadow.camera.far = 150;
         dirLight.shadow.camera.left = -50;
         dirLight.shadow.camera.right = 50;
         dirLight.shadow.camera.top = 50;
         dirLight.shadow.camera.bottom = -50;
-        dirLight.shadow.bias = -0.0001;
+        dirLight.shadow.camera.near = 0.5;
+        dirLight.shadow.camera.far = 150;
+        dirLight.shadow.bias = -0.0005;
+        dirLight.shadow.mapSize.width = 2048;
+        dirLight.shadow.mapSize.height = 2048;
         scene.add(dirLight);
 
-        const planeGeo = new THREE.PlaneGeometry(300, 300);
-        const planeMat = new THREE.ShadowMaterial({ opacity: 0.15 });
-        const plane = new THREE.Mesh(planeGeo, planeMat);
-        plane.rotation.x = -Math.PI / 2;
-        plane.position.y = -0.5;
-        plane.receiveShadow = true;
-        scene.add(plane);
+        const pointLight = new THREE.PointLight(0xffddaa, 0.3, 100);
+        pointLight.position.set(-20, 20, -20);
+        scene.add(pointLight);
 
         const totalCubes = 6484;
         const countRetained = 2723;
@@ -400,7 +396,11 @@
         const countSalvage = 40;
 
         const geometry = new THREE.BoxGeometry(0.85, 0.85, 0.85); 
-        const material = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4, metalness: 0.1 });
+        const material = new THREE.MeshStandardMaterial({ 
+            color: 0xffffff,
+            roughness: 0.3,
+            metalness: 0.1
+        });
         const mesh = new THREE.InstancedMesh(geometry, material, totalCubes);
         mesh.castShadow = true;
         mesh.receiveShadow = true;
@@ -566,14 +566,6 @@
         drawTreemap();
         drawSankey();
         initThreeJS();
-        
-        setTimeout(() => {
-            const loader = document.getElementById('loader');
-            if (loader) {
-                loader.style.opacity = '0';
-                setTimeout(() => loader.remove(), 500);
-            }
-        }, 1200);
     };
     
     window.onresize = () => {
