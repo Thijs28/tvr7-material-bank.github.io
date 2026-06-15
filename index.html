@@ -265,28 +265,49 @@
 
 <script>
    // ---------------------------------------------------------
-    // 1. MAPLIBRE GL JS (Cinematic Intro)
+    // 1. MAPLIBRE GL JS (Cinematic Intro with 3D Buildings)
     // ---------------------------------------------------------
     function initMap() {
         const map = new maplibregl.Map({
             container: 'map',
             style: 'https://api.maptiler.com/maps/satellite/style.json?key=IeGMuPWp83CKsARYFLHX',
-            center: [4.399776, 51.216411], // TVR7 Coordinates (Long, Lat)
-            zoom: 2, // Start global
+            center: [4.399776, 51.216411], // TVR7 Coordinates
+            zoom: 2, 
             pitch: 0,
             bearing: 0,
             interactive: false,
             attributionControl: false
         });
 
-        // Trigger cinematic dive when the map loads
         map.on('load', () => {
+            // 1. Add Vector Data Source for the city geometry
+            map.addSource('openmaptiles', {
+                url: 'https://api.maptiler.com/tiles/v3/tiles.json?key=IeGMuPWp83CKsARYFLHX',
+                type: 'vector'
+            });
+
+            // 2. Add the 3D Building Extrusion Layer
+            map.addLayer({
+                'id': '3d-buildings',
+                'source': 'openmaptiles',
+                'source-layer': 'building',
+                'type': 'fill-extrusion',
+                'minzoom': 14, // Buildings only appear when zoomed in
+                'paint': {
+                    'fill-extrusion-color': '#cccccc', // Brutalist grey
+                    'fill-extrusion-height': ['get', 'render_height'], // Pulls real building heights
+                    'fill-extrusion-base': ['get', 'render_min_height'],
+                    'fill-extrusion-opacity': 0.85 // Slight transparency over the satellite base
+                }
+            });
+
+            // 3. Cinematic Dive
             map.flyTo({
                 center: [4.399776, 51.216411],
-                zoom: 19.2,     // Increased from 17.5 for a much tighter zoom
-                pitch: 60,      // Isometric tilt remains the same
-                bearing: 55,   
-                duration: 8000, 
+                zoom: 18.8,
+                pitch: 60,
+                bearing: 145,
+                duration: 5000,
                 essential: true,
                 curve: 1.2
             });
