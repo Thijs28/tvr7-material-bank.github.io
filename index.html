@@ -5,10 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TVR7 | Demolition & Reuse</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://unpkg.com/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
 
     <style>
         :root {
@@ -22,34 +24,12 @@
         
         body, html { 
             margin: 0; padding: 0; 
-            font-family: 'Space Grotesk', Helvetica, Arial, sans-serif; 
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
             background: var(--bg-animation); 
             color: var(--text-main); 
         }
-
-        #loader {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: var(--bg-animation);
-            z-index: 9999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 2rem;
-            font-weight: 500;
-            transition: opacity 0.8s ease;
-        }
-        .bouncing-dots span {
-            display: inline-block;
-            animation: bounce 1.4s infinite ease-in-out both;
-        }
-        .bouncing-dots span:nth-child(1) { animation-delay: -0.32s; }
-        .bouncing-dots span:nth-child(2) { animation-delay: -0.16s; }
-        @keyframes bounce {
-            0%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-8px); }
-        }
         
+        /* 1. SCROLLYTELLING SECTION (SVG & MAP) */
         .scrolly-container { display: flex; align-items: flex-start; background-color: var(--bg-animation); }
         .text-overlay { width: 25%; padding: 0 5%; position: relative; z-index: 10; background-color: var(--bg-animation); }
         
@@ -57,10 +37,38 @@
             width: 75%; height: 100vh; position: sticky; top: 0; 
             display: flex; justify-content: center; align-items: center; 
             background-color: var(--bg-animation);
-            box-shadow: -8px 0 30px rgba(0,0,0,0.06);
-            z-index: 5;
+            overflow: hidden;
         }
         
+        /* Map and SVG Overlays */
+        #map {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            filter: grayscale(100%) contrast(110%);
+            z-index: 1;
+            transition: opacity 1s ease-in-out;
+        }
+        
+        #svg-wrapper {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 2;
+            display: flex; justify-content: center; align-items: center;
+            transition: opacity 1s ease-in-out;
+        }
+
+        /* Crossfade Logic based on Scroll Step */
+        .graphic-container[data-current-step="step-0"] #map { opacity: 1; }
+        .graphic-container[data-current-step="step-0"] #svg-wrapper { opacity: 0; }
+        
+        .graphic-container[data-current-step="step-1"] #map,
+        .graphic-container[data-current-step="step-2"] #map,
+        .graphic-container[data-current-step="step-3"] #map { opacity: 0; pointer-events: none; }
+        
+        .graphic-container[data-current-step="step-1"] #svg-wrapper,
+        .graphic-container[data-current-step="step-2"] #svg-wrapper,
+        .graphic-container[data-current-step="step-3"] #svg-wrapper { opacity: 1; }
+
         .step { height: 100vh; display: flex; flex-direction: column; justify-content: center; opacity: 0.25; transition: opacity 0.6s ease; }
         .step.is-active { opacity: 1; }
         .step h2 { font-size: 2.2rem; margin-bottom: 1rem; letter-spacing: -1px; border-left: 4px solid var(--accent); padding-left: 15px; }
@@ -74,6 +82,7 @@
         #svg-wrapper[data-current-state="step-2"] svg.blueprint g[id^="state_2"] { opacity: 1; }
         #svg-wrapper[data-current-state="step-3"] svg.blueprint g[id^="state_3"] { opacity: 1; }
 
+        /* 2. DATA SECTION */
         .data-section { padding: 80px 5vw; background-color: var(--bg-data); border-top: 1px solid var(--border); }
         .data-section h2 { font-size: 2rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px; }
         .data-section p.subtitle { color: var(--text-muted); margin-bottom: 60px; font-size: 1.1rem; max-width: 800px;}
@@ -88,81 +97,45 @@
         #sankey-diagram { width: 100%; height: 900px; margin-bottom: 80px; overflow: visible; }
         .node rect { cursor: pointer; transition: opacity 0.2s; }
         .node rect:hover { opacity: 0.8; }
-        .node text { font-family: 'Space Grotesk', sans-serif; font-size: 11px; pointer-events: none; font-weight: 500; }
+        .node text { font-family: sans-serif; font-size: 11px; pointer-events: none; font-weight: 500; }
         .link { fill: none; stroke-opacity: 0.2; transition: stroke-opacity 0.2s; }
         .link:hover { stroke-opacity: 0.7; }
 
         .d3-tooltip {
             position: absolute; text-align: left; padding: 12px; font-size: 13px;
-            background: rgba(17, 17, 17, 0.85); color: #fff; border-radius: 4px; pointer-events: none;
-            opacity: 0; transition: opacity 0.2s; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            backdrop-filter: blur(4px); border: 1px solid rgba(255, 255, 255, 0.2);
+            background: #111; color: #fff; border-radius: 4px; pointer-events: none;
+            opacity: 0; transition: opacity 0.2s; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         .d3-tooltip span { color: var(--accent); font-weight: bold; font-family: monospace; font-size: 14px;}
 
-        table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 1.05rem; }
-        th, td { padding: 12px 20px; text-align: left; border-bottom: 1px solid var(--border); transition: background-color 0.3s ease; }
+        table { width: 100%; border-collapse: collapse; font-size: 1.05rem; }
+        th, td { padding: 12px 20px; text-align: left; border-bottom: 1px solid var(--border); }
         th { background-color: #f9f9f9; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
-        
-        tbody tr:not(.category-header) {
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
-        }
-        tbody tr:not(.category-header):hover {
-            transform: scale(1.02);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-            position: relative;
-            z-index: 10;
-        }
-        tbody tr:not(.category-header):hover td {
-            background-color: #ffffff;
-            border-bottom-color: transparent;
-        }
-
+        tr:hover td { background-color: #fafafa; }
         .category-header { background-color: #111111; color: #ffffff; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
-        .category-header td { padding: 18px 20px; border-bottom: none; }
-        .category-header:hover td { background-color: #111111; }
+        .category-header td { padding: 18px 20px; }
         .highlight-val { font-weight: bold; font-family: monospace; font-size: 1.1rem; color: var(--accent); }
         i { color: #888; font-size: 0.9em; font-weight: normal; }
 
-        .three-section {
-            border-top: 1px solid var(--border);
-        }
-        #three-canvas-container {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            cursor: grab;
-            overflow: hidden; 
-        }
-        #three-canvas-container:active {
-            cursor: grabbing;
-        }
-        .instruction-tag {
-            position: absolute;
-            bottom: 30px;
-            right: 30px;
-            background: rgba(0,0,0,0.7);
-            color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            pointer-events: none;
-            opacity: 0.5;
-        }
+        /* 3. 3D PARTICLE MONOLITH SECTION */
+        .three-section { border-top: 1px solid var(--border); }
+        #three-canvas-container { width: 100%; height: 100%; position: absolute; top: 0; left: 0; cursor: grab; overflow: hidden; }
+        #three-canvas-container:active { cursor: grabbing; }
+        .instruction-tag { position: absolute; bottom: 30px; right: 30px; background: rgba(0,0,0,0.7); color: white; padding: 8px 15px; border-radius: 20px; font-size: 0.85rem; pointer-events: none; opacity: 0.5; }
     </style>
 </head>
 <body>
-
-<div id="loader">
-    Initializing<span class="bouncing-dots"><span>.</span><span>.</span><span>.</span></span>
-</div>
 
 <div id="tooltip" class="d3-tooltip"></div>
 
 <div class="scrolly-container">
     <div class="text-overlay">
+        <div class="step" data-state="step-0">
+            <div>
+                <h2>0. The Site<br><i>(De Locatie)</i></h2>
+                <p>Geospatial analysis of the TVR7 plot. At a global scale, material banks exist as abstract coordinates. Zooming into <b>51.216, 4.399</b> reveals the physical reality of the monolith before intervention.</p>
+            </div>
+        </div>
         <div class="step" data-state="step-1">
             <div>
                 <h2>1. Pre-Demolition Mass<br><i>(Oorspronkelijk Volume)</i></h2>
@@ -182,7 +155,9 @@
             </div>
         </div>
     </div>
-    <div class="graphic-container" id="svg-wrapper" data-current-state="step-1">
+    <div class="graphic-container" id="graphic-wrapper" data-current-step="step-0">
+        <div id="map"></div>
+        <div id="svg-wrapper" data-current-state="step-0"></div>
     </div>
 </div>
 
@@ -274,6 +249,7 @@
         <div class="instruction-tag">Drag to Rotate 3D Model</div>
     </div>
 </div>
+
 <section class="data-section" style="background-color: #111111; color: #ffffff; border-top: none;">
     <h2 style="color: #ffffff; border-left: 4px solid var(--accent); padding-left: 15px;">Critical Reflection: The Reality of Demolition <i>(Kritische Reflectie)</i></h2>
     <div style="max-width: 800px; font-size: 1.1rem; line-height: 1.6; color: #cccccc; margin-top: 2rem;">
@@ -286,17 +262,40 @@
         </ul>
     </div>
 </section>
+
 <script>
-    let loadSteps = 0;
-    function checkLoader() {
-        loadSteps++;
-        if (loadSteps >= 2) {
-            const loader = document.getElementById('loader');
-            loader.style.opacity = '0';
-            setTimeout(() => loader.style.display = 'none', 800);
-        }
+    // ---------------------------------------------------------
+    // 1. MAPLIBRE GL JS (Cinematic Intro)
+    // ---------------------------------------------------------
+    function initMap() {
+        const map = new maplibregl.Map({
+            container: 'map',
+            style: 'https://api.maptiler.com/maps/satellite/style.json?key=IeGMuPWp83CKsARYFLHX',
+            center: [4.399776, 51.216411], // TVR7 Coordinates (Long, Lat)
+            zoom: 2, // Start global
+            pitch: 0,
+            bearing: 0,
+            interactive: false,
+            attributionControl: false
+        });
+
+        // Trigger cinematic dive when the map loads
+        map.on('load', () => {
+            map.flyTo({
+                center: [4.399776, 51.216411],
+                zoom: 17.5,
+                pitch: 60, // Isometric tilt
+                bearing: -35, // Adjust to match blueprint rotation
+                duration: 5000, // 5 seconds
+                essential: true,
+                curve: 1.2
+            });
+        });
     }
 
+    // ---------------------------------------------------------
+    // 2. SCROLLYTELLING LOGIC (Map -> SVG Crossfade)
+    // ---------------------------------------------------------
     fetch('State1-3.txt')
         .then(response => { if (!response.ok) throw new Error(); return response.text(); })
         .then(svgCode => {
@@ -305,28 +304,33 @@
             const svgEl = wrapper.querySelector('svg');
             if(svgEl) svgEl.classList.add('blueprint');
             initScroll();
-            checkLoader();
         })
-        .catch(error => {
-            console.error("SVG fetch error:", error);
-            checkLoader();
-        });
+        .catch(error => console.error("SVG fetch error:", error));
 
     function initScroll() {
         const steps = document.querySelectorAll('.step:not(.three-step)');
+        const graphicWrapper = document.getElementById('graphic-wrapper');
         const svgWrapper = document.getElementById('svg-wrapper');
+        
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     steps.forEach(s => s.classList.remove('is-active'));
                     entry.target.classList.add('is-active');
-                    svgWrapper.setAttribute('data-current-state', entry.target.getAttribute('data-state'));
+                    
+                    const state = entry.target.getAttribute('data-state');
+                    // Set state on both wrappers to trigger the CSS crossfade opacity
+                    graphicWrapper.setAttribute('data-current-step', state);
+                    svgWrapper.setAttribute('data-current-state', state);
                 }
             });
         }, { threshold: 0.5 });
         steps.forEach(step => observer.observe(step));
     }
 
+    // ---------------------------------------------------------
+    // 3. D3 TREEMAP 
+    // ---------------------------------------------------------
     function drawTreemap() {
         const container = document.getElementById("treemap-diagram");
         container.innerHTML = "";
@@ -361,9 +365,12 @@
         leaf.append("div").attr("class", "treemap-value").style("font-size", d => (d.x1 - d.x0) > 100 && (d.y1 - d.y0) > 40 ? "1.1rem" : "0px").text(d => d.value.toLocaleString() + " m³");
     }
 
+    // ---------------------------------------------------------
+    // 4. D3 SANKEY DIAGRAM
+    // ---------------------------------------------------------
     const sankeyData = {
         nodes: [
-            { name: "TVR7 Pre-Demolition (TVR7 Site)", category: "source" }, { name: "Bulk Recycling (Puinrecyclage)", category: "recycle" }, { name: "Standard Landfill (Stortplaats)", category: "waste" }, { name: "Hazardous Disposal (Gevaarlijk Afval)", category: "hazard" }, { name: "Secondary Market (Tweedehandsmarkt)", category: "salvage" }, { name: "Artwork Relocation (Kunstbehoud)", category: "salvage" }, { name: "Soil Reuse (Grondhergebruik)", category: "recycle" }, { name: "Mason Walls (Metselwerk Muren)", category: "recycle" }, { name: "Concrete Walls (Beton Muren)", category: "recycle" }, { name: "Concrete Floors (Betonvloeren)", category: "recycle" }, { name: "Concrete Roof (Betondak)", category: "recycle" }, { name: "Concrete Structure (Structuurelementen)", category: "recycle"}, { name: "Floor Screed (Dekvloer)", category: "recycle" }, { name: "Ext. Pavement (Verhardingen)", category: "recycle" }, { name: "Pitched Roof (Hellend Dak)", category: "waste" }, { name: "Flat Roof (Plat Dak)", category: "waste" }, { name: "Exterior Joinery (Buitenschrijnwerk)", category: "waste" }, { name: "Sun Screens (Screens)", category: "waste" }, { name: "Plasterwork (Pleisterwerk)", category: "waste" }, { name: "Asbestos Slates (Asbest Leien)", category: "hazard" }, { name: "Facade Bricks (Gevelsteen)", category: "salvage" }, { name: "Interior Bricks (Binnenmuursteen)", category: "salvage" }, { name: "Blue Stone Floors (Blauwe Steen Vloer)", category: "salvage" }, { name: "Blue Stone Paving (Blauwe Steen Buiten)", category: "salvage" }, { name: "Wood Wainscoting (Lambrisering)", category: "salvage" }, { name: "Sills (Tabletten)", category: "salvage" }, { name: "Wooden Handrails (Handgrepen)", category: "salvage" }, { name: "Original Signage (Signalisatie)", category: "salvage" }, { name: "Statue 'Vrouw van Lot' (Kunstwerk)", category: "salvage" }, { name: "Excavated Soil (Uitgegraven Bodem)", category: "recycle" }
+            { name: "TVR7 Pre-Demolition (TVR7 Site)", category: "source" }, { name: "Bulk Recycling (Puinrecyclage)", category: "recycle" }, { name: "Standard Landfill (Stortplaats)", category: "waste" }, { name: "Hazardous Disposal (Gevaarlijk Afval)", category: "hazard" }, { name: "Secondary Market (Tweedehandsmarkt)", category: "salvage" }, { name: "Artwork Relocation (Kunstbehoud)", category: "salvage" }, { name: "Soil Reuse (Grondhergebruik)", category: "recycle" }, { name: "Masonry Walls (Metselwerk Muren)", category: "recycle" }, { name: "Concrete Walls (Beton Muren)", category: "recycle" }, { name: "Concrete Floors (Betonvloeren)", category: "recycle" }, { name: "Concrete Roof (Betondak)", category: "recycle" }, { name: "Concrete Structure (Structuurelementen)", category: "recycle"}, { name: "Floor Screed (Dekvloer)", category: "recycle" }, { name: "Ext. Pavement (Verhardingen)", category: "recycle" }, { name: "Pitched Roof (Hellend Dak)", category: "waste" }, { name: "Flat Roof (Plat Dak)", category: "waste" }, { name: "Exterior Joinery (Buitenschrijnwerk)", category: "waste" }, { name: "Sun Screens (Screens)", category: "waste" }, { name: "Plasterwork (Pleisterwerk)", category: "waste" }, { name: "Asbestos Slates (Asbest Leien)", category: "hazard" }, { name: "Facade Bricks (Gevelsteen)", category: "salvage" }, { name: "Interior Bricks (Binnenmuursteen)", category: "salvage" }, { name: "Blue Stone Floors (Blauwe Steen Vloer)", category: "salvage" }, { name: "Blue Stone Paving (Blauwe Steen Buiten)", category: "salvage" }, { name: "Wood Wainscoting (Lambrisering)", category: "salvage" }, { name: "Sills (Tabletten)", category: "salvage" }, { name: "Wooden Handrails (Handgrepen)", category: "salvage" }, { name: "Original Signage (Signalisatie)", category: "salvage" }, { name: "Statue 'Vrouw van Lot' (Kunstwerk)", category: "salvage" }, { name: "Excavated Soil (Uitgegraven Bodem)", category: "recycle" }
         ],
         links: [
             { source: 0, target: 7, value: 235.31, unit: "m³" }, { source: 0, target: 8, value: 82.47, unit: "m³" }, { source: 0, target: 9, value: 1164.57, unit: "m²" }, { source: 0, target: 10, value: 156.32, unit: "m²" }, { source: 0, target: 11, value: 93.46, unit: "m³ & st" }, { source: 0, target: 12, value: 193.74, unit: "m²" }, { source: 0, target: 13, value: 27.61, unit: "m²" }, { source: 0, target: 14, value: 144.88, unit: "m²" }, { source: 0, target: 15, value: 450.34, unit: "m²" }, { source: 0, target: 16, value: 899.33, unit: "m²" }, { source: 0, target: 17, value: 247.33, unit: "m²" }, { source: 0, target: 18, value: 257.16, unit: "m²" }, { source: 0, target: 19, value: 67.51, unit: "m²" }, { source: 0, target: 20, value: 20.94, unit: "m³" }, { source: 0, target: 21, value: 11.27, unit: "m³" }, { source: 0, target: 22, value: 97.17, unit: "m²" }, { source: 0, target: 23, value: 48.79, unit: "m²" }, { source: 0, target: 24, value: 54.40, unit: "m²" }, { source: 0, target: 25, value: 61.84, unit: "m" }, { source: 0, target: 26, value: 11.00, unit: "st" }, { source: 0, target: 27, value: 6.00, unit: "st" }, { source: 0, target: 28, value: 1.00, unit: "Unit" }, { source: 0, target: 29, value: 1098.01, unit: "m³" }, { source: 7, target: 1, value: 235.31, unit: "m³" }, { source: 8, target: 1, value: 82.47, unit: "m³" }, { source: 9, target: 1, value: 1164.57, unit: "m²" }, { source: 10, target: 1, value: 156.32, unit: "m²" }, { source: 11, target: 1, value: 93.46, unit: "m³ & st" }, { source: 12, target: 1, value: 193.74, unit: "m²" }, { source: 13, target: 1, value: 27.61, unit: "m²" }, { source: 14, target: 2, value: 144.88, unit: "m²" }, { source: 15, target: 2, value: 450.34, unit: "m²" }, { source: 16, target: 2, value: 899.33, unit: "m²" }, { source: 17, target: 2, value: 247.33, unit: "m²" }, { source: 18, target: 2, value: 257.16, unit: "m²" }, { source: 19, target: 3, value: 67.51, unit: "m²" }, { source: 20, target: 4, value: 20.94, unit: "m³" }, { source: 21, target: 4, value: 11.27, unit: "m³" }, { source: 22, target: 4, value: 97.17, unit: "m²" }, { source: 23, target: 4, value: 48.79, unit: "m²" }, { source: 24, target: 4, value: 54.40, unit: "m²" }, { source: 25, target: 4, value: 61.84, unit: "m" }, { source: 26, target: 4, value: 11.00, unit: "st" }, { source: 27, target: 4, value: 6.00, unit: "st" }, { source: 28, target: 5, value: 1.00, unit: "Unit" }, { source: 29, target: 6, value: 1098.01, unit: "m³" }
@@ -393,6 +400,9 @@
             .on("mouseleave", () => tooltip.style("opacity", 0));
     }
 
+    // ---------------------------------------------------------
+    // 5. THREE.JS PARTICLE MONOLITH
+    // ---------------------------------------------------------
     function initThreeJS() {
         const container = document.getElementById('three-canvas-container');
         const scene = new THREE.Scene();
@@ -404,37 +414,13 @@
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(container.clientWidth, container.clientHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); 
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         container.appendChild(renderer.domElement);
 
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
         scene.add(ambientLight);
-        
-        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        dirLight.position.set(20, 40, 20);
-        dirLight.castShadow = true;
-        const d = 40;
-        dirLight.shadow.camera.left = -d;
-        dirLight.shadow.camera.right = d;
-        dirLight.shadow.camera.top = d;
-        dirLight.shadow.camera.bottom = -d;
-        dirLight.shadow.mapSize.width = 2048;
-        dirLight.shadow.mapSize.height = 2048;
-        dirLight.shadow.bias = -0.0005;
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
+        dirLight.position.set(10, 20, 10);
         scene.add(dirLight);
-
-        const pointLight = new THREE.PointLight(0xffffff, 0.3);
-        pointLight.position.set(-15, 20, -15);
-        scene.add(pointLight);
-
-        const planeGeo = new THREE.PlaneGeometry(300, 300);
-        const planeMat = new THREE.MeshStandardMaterial({ color: 0xffffff, depthWrite: false });
-        const plane = new THREE.Mesh(planeGeo, planeMat);
-        plane.rotation.x = -Math.PI / 2;
-        plane.position.y = -5;
-        plane.receiveShadow = true;
-        scene.add(plane);
 
         const totalCubes = 6484;
         const countRetained = 2723;
@@ -442,10 +428,8 @@
         const countSalvage = 40;
 
         const geometry = new THREE.BoxGeometry(0.85, 0.85, 0.85); 
-        const material = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6, metalness: 0.1 });
+        const material = new THREE.MeshLambertMaterial({ color: 0xffffff });
         const mesh = new THREE.InstancedMesh(geometry, material, totalCubes);
-        mesh.castShadow = true;
-        mesh.receiveShadow = true;
         scene.add(mesh);
 
         const states = [
@@ -491,7 +475,7 @@
                 states[2].col.push(colBlack.clone());
                 
             } else if (j < countRetained + countWaste) {
-                const r = 25 * Math.cbrt(Math.random()) + 8; 
+                const r = 24 * Math.cbrt(Math.random()) + 6; 
                 const theta = Math.random() * 2 * Math.PI;
                 const phi = Math.acos(2 * Math.random() - 1);
                 states[1].pos.push(new THREE.Vector3(
@@ -504,14 +488,14 @@
                 let wIndex = j - countRetained;
                 let wDimX = 16, wDimZ = 16;
                 let wLayer = wDimX * wDimZ;
-                let wX = (wIndex % wDimX) - wDimX/2 - 21; 
+                let wX = (wIndex % wDimX) - wDimX/2 - 19.5; 
                 let wZ = Math.floor((wIndex % wLayer) / wDimX) - wDimZ/2;
                 let wY = Math.floor(wIndex / wLayer) + lift;
                 states[2].pos.push(new THREE.Vector3(wX, wY, wZ));
                 states[2].col.push(colGrey.clone());
                 
             } else {
-                const r = 25 * Math.cbrt(Math.random()) + 8; 
+                const r = 24 * Math.cbrt(Math.random()) + 6; 
                 const theta = Math.random() * 2 * Math.PI;
                 const phi = Math.acos(2 * Math.random() - 1);
                 states[1].pos.push(new THREE.Vector3(
@@ -524,7 +508,7 @@
                 let sIndex = j - (countRetained + countWaste);
                 let sDimX = 4, sDimZ = 5;
                 let sLayer = sDimX * sDimZ;
-                let sX = (sIndex % sDimX) - sDimX/2 + 15; 
+                let sX = (sIndex % sDimX) - sDimX/2 + 16.5; 
                 let sZ = Math.floor((sIndex % sLayer) / sDimX) - sDimZ/2;
                 let sY = Math.floor(sIndex / sLayer) + lift;
                 states[2].pos.push(new THREE.Vector3(sX, sY, sZ));
@@ -604,11 +588,12 @@
         });
     }
 
+    // Initialize all components
     window.onload = () => {
+        initMap();
         drawTreemap();
         drawSankey();
         initThreeJS();
-        checkLoader();
     };
     
     window.onresize = () => {
