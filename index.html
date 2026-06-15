@@ -264,7 +264,7 @@
 </section>
 
 <script>
-    // ---------------------------------------------------------
+   // ---------------------------------------------------------
     // 1. MAPLIBRE GL JS (Cinematic Intro)
     // ---------------------------------------------------------
     function initMap() {
@@ -283,10 +283,10 @@
         map.on('load', () => {
             map.flyTo({
                 center: [4.399776, 51.216411],
-                zoom: 17.5,
-                pitch: 60, // Isometric tilt
-                bearing: -35, // Adjust to match blueprint rotation
-                duration: 5000, // 5 seconds
+                zoom: 18.8,     // Increased from 17.5 for a much tighter zoom
+                pitch: 60,      // Isometric tilt remains the same
+                bearing: 145,   // Rotated by 180 degrees to look FROM the North-West
+                duration: 10000, // 10 seconds
                 essential: true,
                 curve: 1.2
             });
