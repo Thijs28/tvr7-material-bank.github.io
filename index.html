@@ -11,7 +11,8 @@
     
     <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
     <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
-
+    <script src="https://unpkg.com/deck.gl@latest/dist.min.js"></script>
+    
     <style>
         :root {
             --bg-animation: #f4f4f4; 
@@ -250,18 +251,32 @@
     </div>
 </div>
 
-<section class="data-section" style="background-color: #111111; color: #ffffff; border-top: none;">
-    <h2 style="color: #ffffff; border-left: 4px solid var(--accent); padding-left: 15px;">Critical Reflection: The Reality of Demolition <i>(Kritische Reflectie)</i></h2>
-    <div style="max-width: 800px; font-size: 1.1rem; line-height: 1.6; color: #cccccc; margin-top: 2rem;">
-        <p>The TVR7 material bank quantifies the severe limitations of contemporary architectural "circularity." Industry-standard demolition prioritizes rapid, systematic destruction over true material recovery.</p>
-        <ul style="margin-top: 1.5rem; margin-bottom: 1.5rem; padding-left: 20px;">
-            <li style="margin-bottom: 1rem;"><strong>The Statistical Failure of Salvage:</strong> Of the 3,760.83 m³ of physical mass demolished at TVR7, exactly 40.00 m³ was successfully salvaged for the secondary market. This 1.06% recovery rate proves that current aesthetic reuse practices are statistically insignificant against total architectural waste.</li>
-            <li style="margin-bottom: 1rem;"><strong>The Downcycling Norm:</strong> The remaining 3,720.83 m³ (98.94%) of demolished volume is violently downgraded. Heavy structural elements—including 1,164.57 m² of concrete floor slabs and 235.31 m³ of load-bearing masonry—are reduced to bulk rubble, permanently destroying their embedded energy and structural potential.</li>
-            <li style="margin-bottom: 1rem;"><strong>Superficial Sustainability:</strong> The meticulous extraction of 32.21 m³ of face brick and 54.40 m² of wood wainscoting serves a highly visible, performative function. This aesthetic recovery actively masks the underlying destruction of the original 6,484.19 m³ monolith.</li>
-            <li><strong>The Required Paradigm Shift:</strong> TVR7 proves that "selective deconstruction" is a fundamentally insufficient mitigation strategy. True ecological architecture requires the complete abandonment of monolithic, irreversible construction (such as the 2,723.36 m³ skeletal core left behind) in favor of strictly modular, dry-assembled systems designed for infinite disassembly.</li>
-        </ul>
+<div class="scrolly-container" style="background-color: #111111; border-top: 1px solid #333;">
+    <div class="text-overlay" style="background-color: #111111; color: #cccccc; padding-top: 20vh; padding-bottom: 20vh;">
+        <div class="step reflection-step" data-end-state="0">
+            <div>
+                <h2 style="color: #ffffff; border-left: 4px solid var(--accent); padding-left: 15px;">Critical Reflection:<br>The Reality of Demolition</h2>
+                <p>The TVR7 material bank quantifies the severe limitations of contemporary architectural "circularity." Industry-standard demolition prioritizes rapid, systematic destruction over true material recovery.</p>
+            </div>
+        </div>
+        <div class="step reflection-step" data-end-state="1">
+            <div>
+                <h2 style="color: #ffffff; border-left: 4px solid var(--accent); padding-left: 15px;">The Dispersion</h2>
+                <p>Of the 3,760 m³ of physical mass demolished, the vast majority is violently downgraded and scattered blindly across the region. Concrete and masonry are reduced to bulk aggregate or landfilled, permanently destroying their embedded energy.</p>
+            </div>
+        </div>
+        <div class="step reflection-step" data-end-state="2">
+            <div>
+                <h2 style="color: #ffffff; border-left: 4px solid var(--accent); padding-left: 15px;">The Statistical Failure</h2>
+                <p>Only 1.06% (40 m³) was successfully salvaged. This aesthetic recovery actively masks the underlying destruction of the monolith. True ecological architecture demands the abandonment of irreversible construction in favor of modular, dry-assembled systems designed for infinite disassembly.</p>
+            </div>
+        </div>
     </div>
-</section>
+    <div class="graphic-container" style="position: sticky; top: 0; background-color: #000000;">
+        <div id="map-end" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; filter: grayscale(100%) contrast(150%) brightness(0.3);"></div>
+        <div id="deck-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5;"></div>
+    </div>
+</div>
 
 <script>
    // ---------------------------------------------------------
@@ -608,13 +623,111 @@
             renderer.setSize(container.clientWidth, container.clientHeight);
         });
     }
-
+    // ---------------------------------------------------------
+    // 6. ENDING MAP (Dispersion Arcs)
+    // ---------------------------------------------------------
+    function initEndingMap() {
+        const viewState = {
+            longitude: 4.399776,
+            latitude: 51.216411,
+            zoom: 10.2, // Zoomed out to show regional spread
+            pitch: 50,
+            bearing: 0
+        };
+    
+        // Render the dark, static satellite base map
+        const mapEnd = new maplibregl.Map({
+            container: 'map-end',
+            style: 'https://api.maptiler.com/maps/satellite/style.json?key=IeGMuPWp83CKsARYFLHX',
+            center: [viewState.longitude, viewState.latitude],
+            zoom: viewState.zoom,
+            pitch: viewState.pitch,
+            bearing: viewState.bearing,
+            interactive: false,
+            attributionControl: false
+        });
+    
+        // Procedural Proxy Data Generation (20 randomized delivery paths)
+        const origin = [viewState.longitude, viewState.latitude];
+        const arcs = [];
+        for(let i=0; i<20; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const radius = 0.05 + Math.random() * 0.15; // Random distance ~5-15km away
+            const isSalvage = i < 2; // Only exactly 2 lines are Red Salvage
+            arcs.push({
+                source: origin,
+                target: [origin[0] + Math.cos(angle)*radius, origin[1] + Math.sin(angle)*radius],
+                color: isSalvage ? [237, 28, 36] : [130, 130, 130],
+                width: isSalvage ? 4 : 2
+            });
+        }
+    
+        // Initialize 3D Arc Overlay
+        const deckgl = new deck.DeckGL({
+            container: 'deck-container',
+            initialViewState: viewState,
+            controller: false,
+            layers: []
+        });
+    
+        // Scroll Tracking Logic
+        let arcProgress = 0;
+        let animationTarget = 0;
+    
+        const steps = document.querySelectorAll('.reflection-step');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    steps.forEach(s => s.classList.remove('is-active'));
+                    entry.target.classList.add('is-active');
+                    const state = parseInt(entry.target.getAttribute('data-end-state'));
+                    
+                    // State 0 = Hidden, State 1+ = Fire the arcs
+                    if (state === 0) animationTarget = 0;
+                    if (state >= 1) animationTarget = 1; 
+                }
+            });
+        }, { threshold: 0.5 });
+        steps.forEach(step => observer.observe(step));
+    
+        // Physics Animation Loop
+        function animateArcs() {
+            arcProgress += (animationTarget - arcProgress) * 0.04; // Smooth ease-out
+            
+            // Interpolate the line length so they visually "shoot" across the map
+            const currentArcs = arcs.map(arc => ({
+                source: arc.source,
+                target: [
+                    arc.source[0] + (arc.target[0] - arc.source[0]) * arcProgress,
+                    arc.source[1] + (arc.target[1] - arc.source[1]) * arcProgress
+                ],
+                color: arc.color,
+                width: arc.width
+            }));
+    
+            const layer = new deck.ArcLayer({
+                id: 'arcs',
+                data: currentArcs,
+                getSourcePosition: d => d.source,
+                getTargetPosition: d => d.target,
+                getSourceColor: d => [d.color[0], d.color[1], d.color[2], 255],
+                getTargetColor: d => [d.color[0], d.color[1], d.color[2], 255 * arcProgress],
+                getWidth: d => d.width,
+                getHeight: d => arcProgress * 0.5 // Arcs lift up dramatically
+            });
+    
+            deckgl.setProps({layers: [layer]});
+            requestAnimationFrame(animateArcs);
+        }
+        animateArcs();
+    }
     // Initialize all components
     window.onload = () => {
         initMap();
         drawTreemap();
         drawSankey();
         initThreeJS();
+        initEndingMap();
     };
     
     window.onresize = () => {
