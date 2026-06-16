@@ -647,21 +647,39 @@
             attributionControl: false
         });
     
-        // Procedural Proxy Data Generation (20 randomized delivery paths)
+       // Real-world dispersion data (Actual facility coordinates)
         const origin = [viewState.longitude, viewState.latitude];
-        const arcs = [];
-        for(let i=0; i<20; i++) {
-            const angle = Math.random() * Math.PI * 2;
-            const radius = 0.05 + Math.random() * 0.15; // Random distance ~5-15km away
-            const isSalvage = i < 2; // Only exactly 2 lines are Red Salvage
-            arcs.push({
+        
+        const destinations = [
+            // HEAVY DOWNCYCLING & LANDFILL (Grey lines)
+            // Multiple arcs to massive hubs represent heavy volume
+            { name: "Indaver Hooge Maey Landfill", coords: [4.3065, 51.3262], type: "waste" }, 
+            { name: "Indaver Hooge Maey Landfill 2", coords: [4.3060, 51.3260], type: "waste" }, 
+            { name: "Renewi Antwerpen (Recycling)", coords: [4.3540, 51.2721], type: "waste" }, 
+            { name: "Renewi Antwerpen 2", coords: [4.3545, 51.2725], type: "waste" }, 
+            { name: "Indaver Antwerpen (Cat 1/2)", coords: [4.3188, 51.3085], type: "waste" }, 
+            { name: "Indaver Kallo / Doel", coords: [4.2611, 51.3089], type: "waste" }, 
+            { name: "Beveren Aggregate Crusher", coords: [4.2389, 51.2370], type: "waste" }, 
+            { name: "Schoten Construction Recycling", coords: [4.7188, 51.2465], type: "waste" }, 
+            { name: "Vanheede Landfill", coords: [3.1672, 50.9231], type: "waste" }, 
+            { name: "Port Industrial Processor A", coords: [4.3210, 51.2950], type: "waste" }, 
+            { name: "Port Industrial Processor B", coords: [4.3150, 51.2850], type: "waste" }, 
+            
+            // SECONDARY MARKETS (Red Salvage lines)
+            { name: "RotorDC (Brussels Salvage Market)", coords: [4.3653, 50.8682], type: "salvage" }, 
+            { name: "Kempische Bouwmaterialen (Turnhout)", coords: [4.9450, 51.3190], type: "salvage" }  
+        ];
+
+        const arcs = destinations.map(dest => {
+            const isSalvage = dest.type === "salvage";
+            return {
                 source: origin,
-                target: [origin[0] + Math.cos(angle)*radius, origin[1] + Math.sin(angle)*radius],
+                target: dest.coords,
                 color: isSalvage ? [237, 28, 36] : [130, 130, 130],
                 width: isSalvage ? 4 : 2
-            });
-        }
-    
+            };
+        });
+        
         // Initialize 3D Arc Overlay
         const deckgl = new deck.DeckGL({
             container: 'deck-container',
