@@ -265,7 +265,17 @@
                 <p>Of the 3,760 m³ of physical mass demolished, the vast majority is violently downgraded and scattered blindly across the region. Concrete and masonry are reduced to bulk aggregate or landfilled, permanently destroying their embedded energy.</p>
             </div>
         </div>
+        
         <div class="step reflection-step" data-end-state="2">
+            <div>
+                <h2 style="color: #ffffff; border-left: 4px solid var(--accent); padding-left: 15px;">The Statistical Failure</h2>
+                <p>Only 1.06% (40 m³) was successfully salvaged. This aesthetic recovery actively masks the underlying destruction of the monolith. True ecological architecture demands the abandonment of irreversible construction in favor of modular, dry-assembled systems designed for infinite disassembly.</p>
+                
+                <button id="reconstruct-btn" onmouseover="this.style.backgroundColor='#ffffff'; this.style.color='#111111'" onmouseout="this.style.backgroundColor='var(--accent)'; this.style.color='#ffffff'" style="margin-top: 60px; padding: 20px; background-color: var(--accent); color: #ffffff; border: none; font-family: monospace; font-size: 1.1rem; font-weight: bold; text-transform: uppercase; cursor: pointer; width: 100%; letter-spacing: 1px; transition: all 0.3s ease;">
+                    [ Initiate Circularity Loop ]
+                </button>
+            </div>
+        </div>
             <div>
                 <h2 style="color: #ffffff; border-left: 4px solid var(--accent); padding-left: 15px;">The Statistical Failure</h2>
                 <p>Only 1.06% (40 m³) was successfully salvaged. This aesthetic recovery actively masks the underlying destruction of the monolith. True ecological architecture demands the abandonment of irreversible construction in favor of modular, dry-assembled systems designed for infinite disassembly.</p>
@@ -739,6 +749,18 @@
         }
         animateArcs();
     }
+    // ---------------------------------------------------------
+    // 7. CIRCULARITY LOOP RESTART
+    // ---------------------------------------------------------
+    document.getElementById('reconstruct-btn').addEventListener('click', () => {
+        // Instantly jump to the top of the page
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        
+        // Slight delay, then reload to trigger the cinematic MapLibre dive again
+        setTimeout(() => {
+            window.location.reload();
+        }, 50);
+    });
     // Initialize all components
     window.onload = () => {
         initMap();
